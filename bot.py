@@ -187,7 +187,7 @@ def send_pdf(update: Update, context: CallbackContext) -> None:
 def main():
     init_db()
     import os
-    TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    TOKEN = "7643345132:AAGKqyJx64-gatYkBSzqRXnBf1qgIqsKsU0"
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 

@@ -186,7 +186,8 @@ def send_pdf(update: Update, context: CallbackContext) -> None:
 # 📌 Запуск бота
 def main():
     init_db()
-    TOKEN = "ТУТ_НЕ_МАЄ_БУТИ_ТОКЕНА"
+    import os
+    TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 

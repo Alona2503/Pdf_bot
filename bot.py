@@ -186,7 +186,7 @@ def send_pdf(update: Update, context: CallbackContext) -> None:
 # 📌 Запуск бота
 def main():
     init_db()
-    TOKEN = "7643345132:AAGKqyJx64-gatYkBSzqRXnBf1qgIqsKsU0"
+    TOKEN = "ТУТ_НЕ_МАЄ_БУТИ_ТОКЕНА"
     updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 

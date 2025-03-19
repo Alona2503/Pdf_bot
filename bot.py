@@ -21,7 +21,7 @@ os.makedirs(FONT_FOLDER, exist_ok=True)
 
 # 📌 Шляхи до файлів
 TEXT_FONT_PATH = "DejaVuSans.ttf"
-BACKGROUND_IMAGE_PATH = "/storage/emulated/0/Download/converted_image (1).jpg"
+BACKGROUND_IMAGE_PATH = os.path.join("fern_pastel_background.jpg")
 DEST_TEXT_FONT_PATH = os.path.join(FONT_FOLDER, "DejaVuSans.ttf")
 
 # 📌 Копіюємо шрифт у папку, якщо його там немає

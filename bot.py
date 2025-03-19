@@ -20,7 +20,7 @@ os.makedirs(IMAGE_FOLDER, exist_ok=True)
 os.makedirs(FONT_FOLDER, exist_ok=True)
 
 # 📌 Шляхи до файлів
-TEXT_FONT_PATH = "/storage/emulated/0/Download/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+TEXT_FONT_PATH = os.path.join("fonts", "DejaVuSans.ttf")
 BACKGROUND_IMAGE_PATH = "/storage/emulated/0/Download/converted_image (1).jpg"
 DEST_TEXT_FONT_PATH = os.path.join(FONT_FOLDER, "DejaVuSans.ttf")
 

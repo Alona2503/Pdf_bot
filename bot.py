@@ -360,8 +360,16 @@ def morning(update: Update, context: CallbackContext):
     update.message.reply_text(f"☀️ {question}")
     context.user_data["state"] = "morning_response"
     question = random.choice(available)
-    context.user_data["current_question"] = question
+    kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))
 
+    data["entries"].append({
+        "type": "morning",
+        "question": question,
+        "content": "",
+        "timestamp": kyiv_time.isoformat()
+    })
+    save_user_data(user_id, data)ontext.user_data["current_question"] = question
+    
 def evening(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)
@@ -378,6 +386,15 @@ def evening(update: Update, context: CallbackContext):
     context.user_data["current_question"] = question
     update.message.reply_text(f"🌙 {question}")
     context.user_data["state"] = "evening_response"
+    kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))
+
+    data["entries"].append({
+        "type": "morning",
+        "question": question,
+        "content": "",
+        "timestamp": kyiv_time.isoformat()
+    })
+    save_user_data(user_id, data)
 from telegram import InputMediaPhoto
 from telegram.ext import MessageHandler, Filters
 from reportlab.pdfgen import canvas

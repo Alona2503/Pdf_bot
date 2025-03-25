@@ -217,7 +217,7 @@ def add_entry(user_id, entry_type, content):
     data["entries"].append({
         "type": entry_type,
         "content": content,
-        "timestamp": datetime.datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat()
     })
     save_user_data(user_id, data)
 def start(update: Update, context: CallbackContext):

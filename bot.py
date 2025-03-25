@@ -446,7 +446,7 @@ def mydairy(update: Update, context: CallbackContext):
     c.setFont("DejaVu", 20)
     c.drawCentredString(width / 2, height - 140, f"Автор: {data['name']}")
     c.setFont("DejaVu", 16)
-    c.drawCentredString(width / 2, height - 180, f"Дата: {datetime.datetime.now().strftime('%Y-%m-%d')}")
+    c.drawCentredString(width / 2, height - 180, f"Дата: {datetime.now().strftime('%Y-%m-%d')}")
     c.showPage()
 
     # вміст

@@ -300,7 +300,7 @@ def card(update: Update, context: CallbackContext):
     data = load_user_data(user_id)
     today = datetime.now().date().isoformat()
 
-    if data.get["card_date"] == today:
+    if data.get("card_date") == today:
         update.message.reply_text("🔮 Ти вже витягнула карту дня. Наступну можна буде завтра.")
         return
 
@@ -454,7 +454,9 @@ def mydairy(update: Update, context: CallbackContext):
 
     for entry in data["entries"]:
         if entry["type"] == "note":
-            timestamp = format_datetime_ukr(datetime.now())
+            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.drawString(margin, y, f"{timestamp}")
+            y -= 24
             lines = entry["content"] if isinstance(entry["content"], list) else [entry["content"]]
             for line in lines:
                 if y < 100:
@@ -480,8 +482,10 @@ def mydairy(update: Update, context: CallbackContext):
                 y -= img_height + 30
 
         elif entry["type"] == "card_response":
+            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.drawString(margin, y, f"{timestamp}")
+            y -= 24
             c.setFont("DejaVu", 14)
-            timestamp = format_datetime_ukr(datetime.now())
             c.drawString(margin, y, "🔮 Інсайт до карти дня:")
             y -= 24
 
@@ -514,8 +518,10 @@ def mydairy(update: Update, context: CallbackContext):
             y -= lines_count * 20 + 20
 
         elif entry["type"] == "morning_answer":
+            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.drawString(margin, y, f"{timestamp}")
+            y -= 24
             c.setFont("DejaVu", 14)
-            timestamp = format_datetime_ukr(datetime.now())
             c.drawString(margin, y, "☀️ Ранкова відповідь:")
             y -= 24
             full_text = entry["content"]
@@ -530,8 +536,10 @@ def mydairy(update: Update, context: CallbackContext):
             y -= lines_count * 20 + 20
 
         elif entry["type"] == "evening_answer":
+            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.drawString(margin, y, f"{timestamp}")
+            y -= 24
             c.setFont("DejaVu", 14)
-            timestamp = format_datetime_ukr(datetime.now())
             c.drawString(margin, y, "🌙 Вечірня рефлексія:")
             y -= 24
             full_text = entry["content"]

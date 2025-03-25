@@ -339,7 +339,20 @@ def cleardairy(update: Update, context: CallbackContext):
     }
     save_user_data(user_id, new_data)
     update.message.reply_text("🗑 Щоденник очищено (титульна сторінка збережена).")
-
+def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="DejaVu", font_size=14):
+    canvas.setFont(font_name, font_size)
+    words = text.split()
+    line = ""
+    for word in words:
+        test_line = line + word + " "
+        if canvas.stringWidth(test_line, font_name, font_size) < max_width:
+            line = test_line
+        else:
+            canvas.drawString(x, y, line)
+            y -= line_height
+            line = word + " "
+    if line:
+        canvas.drawString(x, y, line)
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)  # Правильне завантаження
@@ -377,8 +390,8 @@ def mydairy(update: Update, context: CallbackContext):
                     c.drawImage(bg, 0, 0, width, height)
                     c.setFont("DejaVu", 14)
                     y = height - margin
-                c.drawString(margin, y, line)
-                y -= 20
+                draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
+                y -= 20 * ((len(line) // 70) + 1)
             y -= 10
 
         elif entry["type"] == "image":

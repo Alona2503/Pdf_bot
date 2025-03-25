@@ -457,9 +457,6 @@ def mydairy(update: Update, context: CallbackContext):
     for entry in data["entries"]:
         if entry["type"] == "note":
             timestamp = format_datetime_ukr(datetime.now())
-            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
-            elements.append(Paragraph("<b>Нотатка:</b>", styles["Heading2"]))
-            elements.append(Paragraph(note_text, styles["Normal"]))
             lines = entry["content"] if isinstance(entry["content"], list) else [entry["content"]]
             for line in lines:
                 if y < 100:
@@ -487,11 +484,6 @@ def mydairy(update: Update, context: CallbackContext):
         elif entry["type"] == "card_response":
             c.setFont("DejaVu", 14)
             timestamp = format_datetime_ukr(datetime.now())
-            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
-            elements.append(Paragraph("<b>Інсайт до карти дня:</b>", styles["Heading2"]))
-            elements.append(Paragraph(f"<b>Карта: {card_title} (№{card_number})</b>", styles["Normal"]))
-            elements.append(Spacer(1, 6))
-            elements.append(Paragraph(insight_text, styles["Normal"]))
             c.drawString(margin, y, "🔮 Інсайт до карти дня:")
             y -= 24
 
@@ -526,9 +518,6 @@ def mydairy(update: Update, context: CallbackContext):
         elif entry["type"] == "morning_answer":
             c.setFont("DejaVu", 14)
             timestamp = format_datetime_ukr(datetime.now())
-            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
-            elements.append(Paragraph("<b>Ранкова відповідь:</b>", styles["Heading2"]))
-            elements.append(Paragraph(morning_text, styles["Normal"]))
             c.drawString(margin, y, "☀️ Ранкова відповідь:")
             y -= 24
             full_text = entry["content"]
@@ -545,9 +534,6 @@ def mydairy(update: Update, context: CallbackContext):
         elif entry["type"] == "evening_answer":
             c.setFont("DejaVu", 14)
             timestamp = format_datetime_ukr(datetime.now())
-            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
-            elements.append(Paragraph("<b>Вечірня відповідь:</b>", styles["Heading2"]))
-            elements.append(Paragraph(evening_text, styles["Normal"]))
             c.drawString(margin, y, "🌙 Вечірня рефлексія:")
             y -= 24
             full_text = entry["content"]

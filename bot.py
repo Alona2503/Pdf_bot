@@ -495,21 +495,14 @@ def mydairy(update: Update, context: CallbackContext):
             y -= 24
 
             lines = entry["content"].get("text", "").split("\n")
-            for line in lines:
-                if y < 100:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    c.setFont("DejaVu", 14)
-                    y = height - margin
-                lines = wrap(entry["content"], width=90)  # 90 — ширина рядка, можна змінювати
                 for line in lines:
                     if y < 100:
                         c.showPage()
                         c.drawImage(bg, 0, 0, width, height)
                         c.setFont("DejaVu", 14)
                         y = height - margin
-                    c.drawString(margin, y, line)
-                    y -= 20
+                    draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
+                    y -= 20 * ((len(line) // 70) + 1)
 
         elif entry["type"] == "morning_answer":
             c.setFont("DejaVu", 14)
@@ -522,9 +515,8 @@ def mydairy(update: Update, context: CallbackContext):
                     c.drawImage(bg, 0, 0, width, height)
                     c.setFont("DejaVu", 14)
                     y = height - margin
-                c.drawString(margin, y, line)
-                y -= 20
-            y -= 10
+                draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
+                y -= 20 * ((len(line) // 70) + 1)
 
         elif entry["type"] == "evening_answer":
             c.setFont("DejaVu", 14)
@@ -533,13 +525,12 @@ def mydairy(update: Update, context: CallbackContext):
             lines = entry["content"].split("\n")
             for line in lines:
                 if y < 100:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    c.setFont("DejaVu", 14)
-                    y = height - margin
-                c.drawString(margin, y, line)
-                y -= 20
-            y -= 10
+                   c.showPage()
+                   c.drawImage(bg, 0, 0, width, height)
+                   c.setFont("DejaVu", 14)
+                   y = height - margin
+                draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
+                аy -= 20 * ((len(line) // 70) + 1)
 
     c.save()
 

@@ -38,7 +38,7 @@ os.makedirs(DATA_FOLDER, exist_ok=True)
 os.makedirs(PDF_FOLDER, exist_ok=True)
 
 # Шляхи до шрифту та фону (використаємо пізніше в PDF)
-FONT_PATH = "/storage/emulated/0/Documents/fonts/DejaVuSans.ttf"
+FONT_PATH = "DejaVuSans.ttf"
 BACKGROUND_IMAGE = "папоротить.jpg"
 
 # Запитання

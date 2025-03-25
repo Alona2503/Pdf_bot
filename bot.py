@@ -364,6 +364,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.utils import ImageReader
 from PIL import Image
+from textwrap import wrap
 
 def note(update: Update, context: CallbackContext):
     update.message.reply_text("✍️ Надішли текст або фото — я збережу це у щоденнику.")
@@ -500,9 +501,15 @@ def mydairy(update: Update, context: CallbackContext):
                     c.drawImage(bg, 0, 0, width, height)
                     c.setFont("DejaVu", 14)
                     y = height - margin
-                c.drawString(margin, y, line)
-                y -= 20
-            y -= 10
+                lines = wrap(entry["content"], width=90)  # 90 — ширина рядка, можна змінювати
+                for line in lines:
+                    if y < 100:
+                        c.showPage()
+                        c.drawImage(bg, 0, 0, width, height)
+                        c.setFont("DejaVu", 14)
+                        y = height - margin
+                    c.drawString(margin, y, line)
+                    y -= 20
 
         elif entry["type"] == "morning_answer":
             c.setFont("DejaVu", 14)

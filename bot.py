@@ -370,7 +370,7 @@ def mydairy(update: Update, context: CallbackContext):
 
     for entry in data["entries"]:
         if entry["type"] == "note":
-            lines = entry["content"].split("\n")
+            lines = entry["content"] if isinstance(entry["content"], list) else [entry["content"]]
             for line in lines:
                 if y < 100:
                     c.showPage()
@@ -497,7 +497,9 @@ def handle_response(update: Update, context: CallbackContext):
         update.message.reply_text("✅ Вечірня відповідь збережена!")
 
     elif state == "note_entry":
-        add_entry(user_id, "note", text)
+            # Розбиваємо текст на рядки перед збереженням
+                lines = text.split('\n')
+                    add_entry(user_id, "note", lines)
         context.user_data["state"] = None
         update.message.reply_text("✅ Нотатка збережена!")
 

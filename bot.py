@@ -494,43 +494,46 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
             y -= 24
 
-            lines = entry["content"].get("text", "").split("\n")
-            for line in lines:
-                if y < 100:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    c.setFont("DejaVu", 14)
-                    y = height - margin
-                draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
-                y -= 20 * ((len(line) // 70) + 1)
+            full_text = entry["content"].get("text", "")
+            if y < 100:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
+
+            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            lines_count = len(full_text) // 70 + full_text.count("\n") + 1
+            y -= lines_count * 20 + 20
 
         elif entry["type"] == "morning_answer":
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "☀️ Ранкова відповідь:")
             y -= 24
-            lines = entry["content"].split("\n")
-            for line in lines:
-                if y < 100:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    c.setFont("DejaVu", 14)
-                    y = height - margin
-                draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
-                y -= 20 * ((len(line) // 70) + 1)
+            full_text = entry["content"]
+            if y < 100:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
+
+            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            lines_count = len(full_text) // 70 + full_text.count("\n") + 1
+            y -= lines_count * 20 + 20
 
         elif entry["type"] == "evening_answer":
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "🌙 Вечірня рефлексія:")
             y -= 24
-            lines = entry["content"].split("\n")
-            for line in lines:
-                if y < 100:
-                   c.showPage()
-                   c.drawImage(bg, 0, 0, width, height)
-                   c.setFont("DejaVu", 14)
-                   y = height - margin
-                draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
-                аy -= 20 * ((len(line) // 70) + 1)
+            full_text = entry["content"]
+            if y < 100:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
+
+            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            lines_count = len(full_text) // 70 + full_text.count("\n") + 1
+            y -= lines_count * 20 + 20
 
     c.save()
 

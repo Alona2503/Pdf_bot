@@ -326,7 +326,18 @@ def card(update: Update, context: CallbackContext):
         photo=card["image_url"],
         caption=f"📍 Карта дня\nНомер: {card['number']}\nНазва: {card['name']}"
     )
+    kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))
 
+    data["entries"].append({
+        "type": "card_response",
+        "content": {
+            "number": card["number"],
+            "name": card["name"],
+            "image": filename,
+            "text": ""  # якщо немає відповіді користувача
+        },
+        "timestamp": kyiv_time.isoformat()
+    })
     data["card_date"] = today
     data["card_info"] = card
     save_user_data(user_id, data)
@@ -379,6 +390,15 @@ from textwrap import wrap
 
 def note(update: Update, context: CallbackContext):
     update.message.reply_text("✍️ Надішли текст або фото — я збережу це у щоденнику.")
+    kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))
+
+    data = load_user_data(update.message.from_user.id)
+    data["entries"].append({
+        "type": "note",
+        "content": update.message.text.splitlines(),
+        "timestamp": kyiv_time.isoformat()
+    })
+    save_user_data(update.message.from_user.id, data)
     context.user_data["state"] = "note_entry"
 
 def save_image(update: Update, context: CallbackContext):

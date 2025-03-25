@@ -456,6 +456,10 @@ def mydairy(update: Update, context: CallbackContext):
 
     for entry in data["entries"]:
         if entry["type"] == "note":
+            timestamp = format_datetime_ukr(datetime.now())
+            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
+            elements.append(Paragraph("<b>Нотатка:</b>", styles["Heading2"]))
+            elements.append(Paragraph(note_text, styles["Normal"]))
             lines = entry["content"] if isinstance(entry["content"], list) else [entry["content"]]
             for line in lines:
                 if y < 100:

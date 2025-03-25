@@ -3,7 +3,6 @@ import json
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import requests
-import json
 import os
 from datetime import datetime
 
@@ -299,9 +298,9 @@ import random
 def card(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)
-    today = datetime.date.today().isoformat()
+    today = datetime.now().date().isoformat()
 
-    if data["card_date"] == today:
+    if data.get["card_date"] == today:
         update.message.reply_text("🔮 Ти вже витягнула карту дня. Наступну можна буде завтра.")
         return
 

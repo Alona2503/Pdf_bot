@@ -6,6 +6,14 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 import requests
 import json
 import os
+from datetime import datetime
+
+def format_datetime_ukr(dt: datetime):
+    months_ukr = [
+        "січня", "лютого", "березня", "квітня", "травня", "червня",
+        "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"
+    ]
+    return f"{dt.day} {months_ukr[dt.month - 1]} {dt.year}, {dt.strftime('%H:%M')}"
 
 json_path = "data.json"
 
@@ -474,6 +482,12 @@ def mydairy(update: Update, context: CallbackContext):
 
         elif entry["type"] == "card_response":
             c.setFont("DejaVu", 14)
+            timestamp = format_datetime_ukr(datetime.now())
+            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
+            elements.append(Paragraph("<b>Інсайт до карти дня:</b>", styles["Heading2"]))
+            elements.append(Paragraph(f"<b>Карта: {card_title} (№{card_number})</b>", styles["Normal"]))
+            elements.append(Spacer(1, 6))
+            elements.append(Paragraph(insight_text, styles["Normal"]))
             c.drawString(margin, y, "🔮 Інсайт до карти дня:")
             y -= 24
 
@@ -507,6 +521,10 @@ def mydairy(update: Update, context: CallbackContext):
 
         elif entry["type"] == "morning_answer":
             c.setFont("DejaVu", 14)
+            timestamp = format_datetime_ukr(datetime.now())
+            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
+            elements.append(Paragraph("<b>Ранкова відповідь:</b>", styles["Heading2"]))
+            elements.append(Paragraph(morning_text, styles["Normal"]))
             c.drawString(margin, y, "☀️ Ранкова відповідь:")
             y -= 24
             full_text = entry["content"]
@@ -522,6 +540,10 @@ def mydairy(update: Update, context: CallbackContext):
 
         elif entry["type"] == "evening_answer":
             c.setFont("DejaVu", 14)
+            timestamp = format_datetime_ukr(datetime.now())
+            elements.append(Paragraph(f"<b>{timestamp}</b>", styles["Normal"]))
+            elements.append(Paragraph("<b>Вечірня відповідь:</b>", styles["Heading2"]))
+            elements.append(Paragraph(evening_text, styles["Normal"]))
             c.drawString(margin, y, "🌙 Вечірня рефлексія:")
             y -= 24
             full_text = entry["content"]

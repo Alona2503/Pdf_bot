@@ -302,6 +302,7 @@ def card(update: Update, context: CallbackContext):
     today = datetime.now().date().isoformat()
 
     if data.get("card_date") == today:
+        save_user_data(user_id, data)
         update.message.reply_text("🔮 Ти вже витягнула карту дня. Наступну можна буде завтра.")
         return
 

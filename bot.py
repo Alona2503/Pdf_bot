@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 import pytz
 from telegram import ParseMode
+import textwrap
 
 def format_datetime_ukr(dt: datetime):
     months_ukr = [
@@ -501,7 +502,7 @@ def mydairy(update: Update, context: CallbackContext):
 
             lines = entry["content"]
             for line in lines:
-                wrapped_lines = wrap_text(line, 90)
+                wrapped_lines = textwrap.wrap(line, width=90)
                 for wline in wrapped_lines:
                     if y < 100:
                         c.showPage()

@@ -6,6 +6,7 @@ import requests
 import os
 from datetime import datetime
 import pytz
+from telegram import ParseMode
 
 def format_datetime_ukr(dt: datetime):
     months_ukr = [

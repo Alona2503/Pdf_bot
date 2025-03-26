@@ -497,8 +497,8 @@ def mydairy(update: Update, context: CallbackContext):
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
-                c.setFont("DejaVu", 14)
-                c.drawString(margin, y, "📝 Нотатка:")
+            c.setFont("DejaVu", 14)
+            c.drawString(margin, y, "📝 Нотатка:")
             lines = entry["content"] if isinstance(entry["content"], list) else [entry["content"]]
             for line in lines:
                 if y < 100:

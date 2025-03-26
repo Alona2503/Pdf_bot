@@ -497,6 +497,8 @@ def mydairy(update: Update, context: CallbackContext):
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
+                c.setFont("DejaVu", 14)
+                c.drawString(margin, y, "📝 Нотатка:")
             lines = entry["content"] if isinstance(entry["content"], list) else [entry["content"]]
             for line in lines:
                 if y < 100:
@@ -505,8 +507,8 @@ def mydairy(update: Update, context: CallbackContext):
                     c.setFont("DejaVu", 14)
                     y = height - margin
                 draw_wrapped_text(c, line, x=margin, y=y, max_width=500, line_height=20)
-                y -= 20 * ((len(line) // 70) + 1)
-            y -= 10
+                y -= 16 * ((len(line) // 70) + 1)
+            y -= 5
 
         elif entry["type"] == "image":
             if os.path.exists(entry["content"]):
@@ -541,8 +543,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.drawImage(entry["content"]["image"], x, y - img_height, img_width, img_height)
                 y -= img_height + 30
 
-            card_name = entry["content"].get("card_name", "")
-            card_number = entry["content"].get("card_number", "")
+            card_name = entry["content"].get("name", "")
+            card_number = entry["content"].get("number", "")
             c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
             y -= 24
 
@@ -556,7 +558,7 @@ def mydairy(update: Update, context: CallbackContext):
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
             if full_text.strip():
                 lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-                y -= lines_count * 20 + 20
+                y -= lines_count * 18 + 10
 
         elif entry["type"] == "morning_answer":
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
@@ -574,7 +576,7 @@ def mydairy(update: Update, context: CallbackContext):
 
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
             lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-            y -= lines_count * 20 + 20
+            y -= lines_count * 18 + 10
 
         elif entry["type"] == "evening_answer":
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
@@ -594,7 +596,7 @@ def mydairy(update: Update, context: CallbackContext):
 
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
             lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-            y -= lines_count * 20 + 20
+            y -= lines_count * 18 + 10
 
     c.save()
 

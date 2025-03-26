@@ -583,7 +583,9 @@ def mydairy(update: Update, context: CallbackContext):
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "🌙 Вечірня рефлексія:")
             y -= 24
-            full_text = entry["content"]
+            question = entry["content"].get("question", "")
+            answer = entry["content"].get("text", "")
+            full_text = f"{question}\n{answer}"
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)
@@ -629,7 +631,10 @@ def handle_response(update: Update, context: CallbackContext):
 
     elif state == "evening_response":
         question = context.user_data.get("current_question", "")
-        add_entry(user_id, "evening_answer", f"{question}\n{text}")
+        add_entry(user_id, "evening_answer", {
+            "question": question,
+            "text": text
+        })
         context.user_data["state"] = None
         update.message.reply_text("✅ Вечірня відповідь збережена!")
 

@@ -499,7 +499,7 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawString(margin, y, "🖋 Нотатка:")
             y -= 20
 
-            lines = entry["content"].split("\n")
+            lines = entry["content"]
             for line in lines:
                 wrapped_lines = wrap_text(line, 90)
                 for wline in wrapped_lines:

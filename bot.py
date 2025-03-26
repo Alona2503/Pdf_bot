@@ -7,10 +7,6 @@ import os
 from datetime import datetime
 import pytz
 
-kyiv_time = datetime.now(pytz.timezone('Europe/Kyiv'))
-
-"timestamp": kyiv_time.isoformat()
-
 def format_datetime_ukr(dt: datetime):
     months_ukr = [
         "січня", "лютого", "березня", "квітня", "травня", "червня",

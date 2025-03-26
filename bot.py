@@ -364,7 +364,8 @@ def morning(update: Update, context: CallbackContext):
         "content": "",
         "timestamp": kyiv_time.isoformat()
     })
-    save_user_data(user_id, data)ontext.user_data["current_question"] = question
+    save_user_data(user_id, data)
+    context.user_data["current_question"] = question
     
 def evening(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id

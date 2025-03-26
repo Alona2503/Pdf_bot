@@ -389,7 +389,7 @@ def evening(update: Update, context: CallbackContext):
     kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))
 
     data["entries"].append({
-        "type": "morning",
+        "type": "evening",
         "question": question,
         "content": "",
         "timestamp": kyiv_time.isoformat()

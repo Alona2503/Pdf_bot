@@ -554,8 +554,9 @@ def mydairy(update: Update, context: CallbackContext):
                 y = height - margin
 
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-            y -= lines_count * 20 + 20
+            if full_text.strip():
+                lines_count = len(full_text) // 70 + full_text.count("\n") + 1
+                y -= lines_count * 20 + 20
 
         elif entry["type"] == "morning_answer":
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))

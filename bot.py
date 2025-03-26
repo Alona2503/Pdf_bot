@@ -614,12 +614,12 @@ def handle_response(update: Update, context: CallbackContext):
     if state == "card_response":
         last_card = context.user_data.get("last_card")
         if last_card:
-            add_entry(user_id, "card_response", {
-                "text": text,
-                "image": last_card["image_path"],
-                "card_name": last_card["name"],
-                "card_number": last_card["number"]
-            })
+            data = load_user_data(user_id)
+            for entry in reversed(data["entries"]):
+                if entry["type"] == "card_response":
+                    entry["content"]["text"] = text
+                    break
+            save_user_data(user_id, data)
             context.user_data["state"] = None
             update.message.reply_text("✅ Інсайт до карти збережено!")
 

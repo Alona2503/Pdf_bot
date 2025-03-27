@@ -535,75 +535,48 @@ def mydairy(update: Update, context: CallbackContext):
         y -= 10  # нижній відступ
 
 
-    for entry in data["entries"]:
-        timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-        check_space(150)
-        c.setFont("DejaVu", 14)
-        c.drawString(margin, y, f"{timestamp}")
-        y -= 24
+for entry in data["entries"]:
+    timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
 
-        if entry["type"] == "note":
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "✏️ Нотатка:")
-            y -= 24
+    # Перевірка, чи є місце для дати + заголовка (44 пікселі — запас)
+    check_space(44)
 
-            full_text = "\n".join(entry["content"]) if isinstance(entry["content"], list) else str(entry["content"])
-            check_space(100)
-            draw_block(full_text)
+    # Малюємо дату
+    c.setFont("DejaVu", 14)
+    c.drawString(margin, y, f"{timestamp}")
+    y -= 24
 
-        elif entry["type"] == "image":
-            if os.path.exists(entry["content"]):
-                img = Image.open(entry["content"])
-                img.thumbnail((400, 400))
-                img_width, img_height = img.size
-                check_space(img_height + 60)
-                x = (width - img_width) / 2
-                c.drawImage(entry["content"], x, y - img_height, img_width, img_height)
-                y -= img_height + 30
+    # Малюємо вміст залежно від типу
+    if entry["type"] == "morning_answer":
+        draw_block("✴ Ранкова відповідь:\n" + entry["text"])
 
-        elif entry["type"] == "card_response":
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "🔮 Інсайт до карти дня:")
-            y -= 24
+    elif entry["type"] == "evening_reflection":
+        draw_block("☽ Вечірня рефлексія:\n" + entry["text"])
 
-            if "image" in entry["content"] and os.path.exists(entry["content"]["image"]):
-                img = Image.open(entry["content"]["image"])
-                img.thumbnail((400, 400))
-                img_width, img_height = img.size
-                check_space(img_height + 60)
-                x = (width - img_width) / 2
-                c.drawImage(entry["content"]["image"], x, y - img_height, img_width, img_height)
-                y -= img_height + 30
+    elif entry["type"] == "note":
+        draw_block("✏️ Нотатка:\n" + entry["text"])
 
-            card_name = entry["content"].get("name", "")
-            card_number = entry["content"].get("number", "")
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
-            y -= 24
+    elif entry["type"] == "insight":
+        draw_block("✨ Інсайт до карти дня:\n" + entry["text"])
 
-            full_text = entry["content"].get("text", "")
-            check_space(100)
-            draw_block(full_text)
+    elif entry["type"] == "card":
+        draw_block(f"Карта: {entry['card_title']} (№{entry['card_number']})")
 
-        elif entry["type"] == "morning_answer":
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "☀️ Ранкова відповідь:")
-            y -= 24
-            question = entry["content"].get("question", "")
-            answer = entry["content"].get("text", "")
-            full_text = f"{question}\n{answer}"
-            check_space(100)
-            draw_block(full_text)
+    elif entry["type"] == "image":
+        # Вставка зображення
+        image_path = entry["image_path"]
+        img_width = 400
+        img_height = 300
 
-        elif entry["type"] == "evening_answer":
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "🌙 Вечірня рефлексія:")
-            y -= 24
-            question = entry["content"].get("question", "")
-            answer = entry["content"].get("text", "")
-            full_text = f"{question}\n{answer}"
-            check_space(100)
-            draw_block(full_text)
+        # Перевіряємо, чи влізе картинка
+        if y < img_height:
+            c.showPage()
+            c.drawImage(bg, 0, 0, width, height)
+            y = height - margin
+
+        # Малюємо картинку
+        c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+        y -= img_height + 10
 
     c.save()
 

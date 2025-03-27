@@ -470,6 +470,7 @@ def mydairy(update: Update, context: CallbackContext):
 
     user_id = update.message.from_user.id
     data = load_user_data(user_id)
+    entries = data.get("entries", [])
     pdf_path = os.path.join(PDF_FOLDER, f"dairy_{user_id}.pdf")
 
     c = canvas.Canvas(pdf_path, pagesize=A4)

@@ -407,15 +407,6 @@ from textwrap import wrap
 
 def note(update: Update, context: CallbackContext):
     update.message.reply_text("✍️ Надішли текст або фото — я збережу це у щоденнику.")
-    kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))
-
-    data = load_user_data(update.message.from_user.id)
-    data["entries"].append({
-        "type": "note",
-        "content": update.message.text.splitlines(),
-        "timestamp": kyiv_time.isoformat()
-    })
-    save_user_data(update.message.from_user.id, data)
     context.user_data["state"] = "note_entry"
 
 def save_image(update: Update, context: CallbackContext):
@@ -468,7 +459,7 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
     if line:
         canvas.drawString(x, y, line)
         y -= line_height
-    return start_y - y  # повертаємо висоту, яку зайняв текст
+    return abs(start_y - y) # повертаємо висоту, яку зайняв текст
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)  # Правильне завантаження

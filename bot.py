@@ -568,20 +568,16 @@ def mydairy(update: Update, context: CallbackContext):
             card_number = entry.get("card_number", "—")
             draw_block(f"Карта: {card_title} (№{card_number})")
         elif entry["type"] == "image":
-        # Вставка зображення
-            image_path = entry["image_path"]
-            img_width = 400
-            img_height = 300
-
-        # Перевіряємо, чи влізе картинка
-            if y < img_height:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-
-        # Малюємо картинку
-            c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-            y -= img_height + 10
+            image_path = entry.get("image_path")
+            if image_path:
+                img_width = 400
+                img_height = 300
+                if y < img_height:
+                    c.showPage()
+                    c.drawImage(bg, 0, 0, width, height)
+                    y = height - margin
+                c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                y -= img_height + 10
 
     c.save()
 

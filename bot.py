@@ -510,7 +510,7 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=width - 2 * margin, font_size=14)
+            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=width - 2 * margin, font_size=14, line_height=18)
             lines_count = len(full_text) // 70 + full_text.count('\n')
             y -= lines_count * 18 + 10
 

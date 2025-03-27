@@ -657,7 +657,8 @@ def handle_response(update: Update, context: CallbackContext):
     elif state == "note_entry":
             # Розбиваємо текст на рядки перед збереженням
         lines = text.split('\n')
-        add_entry(user_id, "note", lines)
+        note_items = [{"type": "note", "text": line} for line in lines if line.strip()]
+        add_entry(user_id, "note", note_items)
         context.user_data["state"] = None
         update.message.reply_text("✅ Нотатка збережена!")
 

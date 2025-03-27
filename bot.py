@@ -548,23 +548,35 @@ def mydairy(update: Update, context: CallbackContext):
 
     # Малюємо вміст залежно від типу
         if entry["type"] == "morning_answer":
-            content = entry.get("content", [{}])[0]
-            text = content.get("text", "(порожньо)")
+            content = entry.get("content", [])
+            if isinstance(content, list) and content:
+                text = content[0].get("text", "(порожньо)")
+            else:
+                text = "(порожньо)"
             draw_block("✴ Ранкова відповідь:\n" + text)
 
         elif entry["type"] == "evening_reflection":
-            content = entry.get("content", [{}])[0]
-            text = content.get("text", "(порожньо)")
+            content = entry.get("content", [])
+            if isinstance(content, list) and content:
+                text = content[0].get("text", "(порожньо)")
+            else:
+                text = "(порожньо)"
             draw_block("☽ Вечірня рефлексія:\n" + text)
 
         elif entry["type"] == "note":
-            content = entry.get("content", [{}])[0]
-            text = content.get("text", "(порожньо)")
+            content = entry.get("content", [])
+            if isinstance(content, list) and content:
+                text = content[0].get("text", "(порожньо)")
+            else:
+                text = "(порожньо)"
             draw_block("✏️ Нотатка:\n" + text)
 
         elif entry["type"] == "insight":
-            content = entry.get("content", [{}])[0]
-            text = content.get("text", "(порожньо)")
+            content = entry.get("content", [])
+            if isinstance(content, list) and content:
+               text = content[0].get("text", "(порожньо)")
+            else:
+               text = "(порожньо)"
             draw_block("✨ Інсайт до карти дня:\n" + text)
 
         elif entry["type"] == "card":

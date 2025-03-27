@@ -612,6 +612,11 @@ def mydairy(update: Update, context: CallbackContext):
             y -= len(wrapped_lines) * 16 + 6
 
         elif entry["type"] == "evening_answer":
+            # перевірити чи є місце перед вставкою нового блоку
+            if y < 150:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24

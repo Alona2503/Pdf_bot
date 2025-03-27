@@ -499,20 +499,31 @@ def mydairy(update: Update, context: CallbackContext):
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
-            c.setFont("DejaVu", 14)
+
+            c.setFont("DejaVu", 16)
             c.drawString(margin, y, "✏️ Нотатка:")
             y -= 24
 
-            full_text = entry["content"]
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
+            lines = entry["content"]
+            full_text = "\n".join(lines) if isinstance(lines, list) else str(lines)
 
-            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=width - 2 * margin, font_size=14, line_height=18)
-            lines_count = len(full_text) // 70 + full_text.count('\n')
-            y -= lines_count * 18 + 10
+        if y < 100:
+            c.showPage()
+            c.drawImage(bg, 0, 0, width, height)
+            c.setFont("DejaVu", 14)
+            y = height - margin
+
+        draw_wrapped_text(
+            c, full_text,
+            x=margin,
+            y=y,
+            max_width=width - 2 * margin,
+            font_size=14,
+            line_height=18
+        )
+
+        lines_count = len(full_text) // 70 + full_text.count("\n")
+        y -= lines_count * 18 + 10
 
         elif entry["type"] == "image":
             if os.path.exists(entry["content"]):

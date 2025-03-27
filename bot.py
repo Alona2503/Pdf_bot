@@ -535,48 +535,48 @@ def mydairy(update: Update, context: CallbackContext):
         y -= 10  # нижній відступ
 
 
-for entry in data["entries"]:
-    timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+    for entry in data["entries"]:
+        timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
 
     # Перевірка, чи є місце для дати + заголовка (44 пікселі — запас)
-    check_space(44)
+        check_space(44)
 
     # Малюємо дату
-    c.setFont("DejaVu", 14)
-    c.drawString(margin, y, f"{timestamp}")
-    y -= 24
+        c.setFont("DejaVu", 14)
+        c.drawString(margin, y, f"{timestamp}")
+        y -= 24
 
     # Малюємо вміст залежно від типу
-    if entry["type"] == "morning_answer":
-        draw_block("✴ Ранкова відповідь:\n" + entry["text"])
+        if entry["type"] == "morning_answer":
+            draw_block("✴ Ранкова відповідь:\n" + entry["text"])
 
-    elif entry["type"] == "evening_reflection":
-        draw_block("☽ Вечірня рефлексія:\n" + entry["text"])
+        elif entry["type"] == "evening_reflection":
+            draw_block("☽ Вечірня рефлексія:\n" + entry["text"])
 
-    elif entry["type"] == "note":
-        draw_block("✏️ Нотатка:\n" + entry["text"])
+        elif entry["type"] == "note":
+            draw_block("✏️ Нотатка:\n" + entry["text"])
+  
+        elif entry["type"] == "insight":
+            draw_block("✨ Інсайт до карти дня:\n" + entry["text"])
 
-    elif entry["type"] == "insight":
-        draw_block("✨ Інсайт до карти дня:\n" + entry["text"])
+        elif entry["type"] == "card":
+            draw_block(f"Карта: {entry['card_title']} (№{entry['card_number']})")
 
-    elif entry["type"] == "card":
-        draw_block(f"Карта: {entry['card_title']} (№{entry['card_number']})")
-
-    elif entry["type"] == "image":
+        elif entry["type"] == "image":
         # Вставка зображення
-        image_path = entry["image_path"]
-        img_width = 400
-        img_height = 300
+            image_path = entry["image_path"]
+            img_width = 400
+            img_height = 300
 
         # Перевіряємо, чи влізе картинка
-        if y < img_height:
-            c.showPage()
-            c.drawImage(bg, 0, 0, width, height)
-            y = height - margin
+            if y < img_height:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                y = height - margin
 
         # Малюємо картинку
-        c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-        y -= img_height + 10
+            c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+            y -= img_height + 10
 
     c.save()
 

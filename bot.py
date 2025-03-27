@@ -496,6 +496,7 @@ def mydairy(update: Update, context: CallbackContext):
                 c.drawImage(bg, 0, 0, width, height)
                 y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
 
@@ -544,6 +545,7 @@ def mydairy(update: Update, context: CallbackContext):
                 c.drawImage(bg, 0, 0, width, height)
                 y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
             c.setFont("DejaVu", 14)
@@ -585,6 +587,7 @@ def mydairy(update: Update, context: CallbackContext):
                 c.drawImage(bg, 0, 0, width, height)
                 y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
             c.setFont("DejaVu", 14)
@@ -609,6 +612,7 @@ def mydairy(update: Update, context: CallbackContext):
                 c.drawImage(bg, 0, 0, width, height)
                 y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
             c.setFont("DejaVu", 14)

@@ -496,23 +496,23 @@ def mydairy(update: Update, context: CallbackContext):
 
     for entry in data["entries"]:
         if entry["type"] == "note":
-    timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-    c.drawString(margin, y, f"{timestamp}")
-    y -= 24
-    c.setFont("DejaVu", 14)
-    c.drawString(margin, y, "✏️ Нотатка:")
-    y -= 24
+            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.drawString(margin, y, f"{timestamp}")
+            y -= 24
+            c.setFont("DejaVu", 14)
+            c.drawString(margin, y, "✏️ Нотатка:")
+            y -= 24
 
-    full_text = entry["content"]
-    if y < 100:
-        c.showPage()
-        c.drawImage(bg, 0, 0, width, height)
-        c.setFont("DejaVu", 14)
-        y = height - margin
+            full_text = entry["content"]
+            if y < 100:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
 
-    draw_wrapped_text(c, full_text, x=margin, y=y, max_width=width - 2 * margin, font_size=14)
-    lines_count = len(full_text) // 70 + full_text.count('\n')
-    y -= lines_count * 18 + 10
+            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=width - 2 * margin, font_size=14)
+            lines_count = len(full_text) // 70 + full_text.count('\n')
+            y -= lines_count * 18 + 10
 
         elif entry["type"] == "image":
             if os.path.exists(entry["content"]):

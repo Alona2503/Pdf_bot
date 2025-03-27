@@ -500,7 +500,7 @@ def mydairy(update: Update, context: CallbackContext):
             if y < 150:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)
-                 y = height - margin
+                y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24

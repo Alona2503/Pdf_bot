@@ -548,19 +548,19 @@ def mydairy(update: Update, context: CallbackContext):
 
     # Малюємо вміст залежно від типу
         if entry["type"] == "morning_answer":
-            text = entry.get("text", "(порожньо)")
+            text = entry.get("content", {}).get("text", "(порожньо)")
             draw_block("✴ Ранкова відповідь:\n" + text)
 
         elif entry["type"] == "evening_reflection":
-            text = entry.get("text", "(порожньо)")
+            text = entry.get("content", {}).get("text", "(порожньо)")
             draw_block("☽ Вечірня рефлексія:\n" + text)
 
         elif entry["type"] == "note":
-            text = entry.get("text", "(порожньо)")
+            text = entry.get("content", {}).get("text", "(порожньо)")
             draw_block("✏️ Нотатка:\n" + text)
 
         elif entry["type"] == "insight":
-            text = entry.get("text", "(порожньо)")
+            text = entry.get("content", {}).get("text", "(порожньо)")
             draw_block("✨ Інсайт до карти дня:\n" + text)
 
         elif entry["type"] == "card":

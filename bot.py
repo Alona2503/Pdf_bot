@@ -535,65 +535,78 @@ def mydairy(update: Update, context: CallbackContext):
         y -= 10  # нижній відступ
 
 
-    for entry in data["entries"]:
-        timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-
-    # Перевірка, чи є місце для дати + заголовка (44 пікселі — запас)
-        check_space(44)
-
-    # Малюємо дату
+    for entry in entries:
+        timestamp = entry.get("timestamp", "")
         c.setFont("DejaVu", 14)
         c.drawString(margin, y, f"{timestamp}")
         y -= 24
+        check_space(24)
 
-    # Малюємо вміст залежно від типу
-        if entry["type"] == "morning_answer":
-            content = entry.get("content", [])
-            if isinstance(content, list) and content:
-                text = content[0].get("text", "(порожньо)")
-            else:
-                text = "(порожньо)"
-            draw_block("✴ Ранкова відповідь:\n" + text)
+        content = entry.get("content", [])
 
-        elif entry["type"] == "evening_reflection":
-            content = entry.get("content", [])
-            if isinstance(content, list) and content:
-                text = content[0].get("text", "(порожньо)")
-            else:
-                text = "(порожньо)"
-            draw_block("☽ Вечірня рефлексія:\n" + text)
+    # Якщо контент — список (новий формат)
+        if isinstance(content, list):
+            for item in content:
+                if not isinstance(item, dict):
+                    continue
+                entry_type = item.get("type")
+                text = item.get("text", "(порожньо)")
 
-        elif entry["type"] == "note":
-            content = entry.get("content", [])
-            if isinstance(content, list) and content:
-                text = content[0].get("text", "(порожньо)")
-            else:
-                text = "(порожньо)"
-            draw_block("✏️ Нотатка:\n" + text)
+                if entry_type == "morning_answer":
+                    draw_block("☀️ Ранкова відповідь:\n" + text)
+                elif entry_type == "evening_reflection":
+                    draw_block("🌙 Вечірня рефлексія:\n" + text)
+                elif entry_type == "note":
+                    draw_block("📝 Нотатка:\n" + text)
+                elif entry_type == "insight":
+                    draw_block("✨ Інсайт до карти дня:\n" + text)
+                elif entry_type == "card":
+                    title = item.get("card_title", "Без назви")
+                    number = item.get("card_number", "-")
+                    draw_block(f"Карта: {title} (№{number})")
+                elif entry_type == "image":
+                    image_path = item.get("image_path")
+                    if image_path:
+                        img_width = 400
+                        img_height = 300
+                        if y < img_height:
+                            c.showPage()
+                            c.drawImage(bg, 0, 0, width, height)
+                            y = height - margin
+                        c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                        y -= img_height + 10
+                        check_space(img_height + 10)
 
-        elif entry["type"] == "insight":
-            content = entry.get("content", [])
-            if isinstance(content, list) and content:
-               text = content[0].get("text", "(порожньо)")
-            else:
-               text = "(порожньо)"
-            draw_block("✨ Інсайт до карти дня:\n" + text)
+    # Якщо контент — звичайний текстовий блок (старий формат)
+        elif isinstance(content, dict):
+            entry_type = content.get("type")
+            text = content.get("text", "(порожньо)")
 
-        elif entry["type"] == "card":
-            card_title = entry.get("card_title", "Без назви")
-            card_number = entry.get("card_number", "—")
-            draw_block(f"Карта: {card_title} (№{card_number})")
-        elif entry["type"] == "image":
-            image_path = entry.get("image_path")
-            if image_path:
-                img_width = 400
-                img_height = 300
-                if y < img_height:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    y = height - margin
-                c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-                y -= img_height + 10
+            if entry_type == "morning_answer":
+                draw_block("☀️ Ранкова відповідь:\n" + text)
+            elif entry_type == "evening_reflection":
+                draw_block("🌙 Вечірня рефлексія:\n" + text)
+            elif entry_type == "note":
+                draw_block("📝 Нотатка:\n" + text)
+            elif entry_type == "insight":
+                draw_block("✨ Інсайт до карти дня:\n" + text)
+            elif entry_type == "card":
+                title = content.get("card_title", "Без назви")
+                number = content.get("card_number", "-")
+                draw_block(f"Карта: {title} (№{number})")
+            elif entry_type == "image":
+                image_path = content.get("image_path")
+                if image_path:
+                    img_width = 400
+                    img_height = 300
+                    if y < img_height:
+                        c.showPage()
+                        c.drawImage(bg, 0, 0, width, height)
+                        y = height - margin
+                    c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                    y -= img_height + 10
+                    check_space(img_height + 10)
+
 
     c.save()
 

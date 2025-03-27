@@ -584,10 +584,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            if full_text.strip():
-                wrapped_lines = textwrap.wrap(full_text, width=90)
-                y -= len(wrapped_lines) * 16 + 6
+            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            y -= used_height + 10
 
         elif entry["type"] == "morning_answer":
             # перевірити чи є місце перед вставкою нового блоку
@@ -610,9 +608,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            wrapped_lines = textwrap.wrap(full_text, width=90)
-            y -= len(wrapped_lines) * 16 + 6
+            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            y -= used_height + 10
 
         elif entry["type"] == "evening_answer":
             # перевірити чи є місце перед вставкою нового блоку
@@ -635,9 +632,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            wrapped_lines = textwrap.wrap(full_text, width=90)
-            y -= len(wrapped_lines) * 16 + 6
+            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            y -= used_height + 10
 
     c.save()
 

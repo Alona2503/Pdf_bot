@@ -456,6 +456,7 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
     canvas.setFont(font_name, font_size)
     words = text.split()
     line = ""
+    start_y = y
     for word in words:
         test_line = line + word + " "
         if canvas.stringWidth(test_line, font_name, font_size) < max_width:
@@ -466,6 +467,8 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
             line = word + " "
     if line:
         canvas.drawString(x, y, line)
+        y -= line_height
+    return start_y - y  # повертаємо висоту, яку зайняв текст
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)  # Правильне завантаження

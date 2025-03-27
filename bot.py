@@ -505,34 +505,35 @@ def mydairy(update: Update, context: CallbackContext):
         nonlocal y
         c.setFont("DejaVu", 14)
         line_height = 20
-    # Порахувати кількість рядків заздалегідь
+
         words = text.split()
-        lines = []
         line = ""
         for word in words:
             test_line = line + word + " "
             if c.stringWidth(test_line, "DejaVu", 14) < max_width:
                 line = test_line
             else:
-                lines.append(line)
+            # перед малюванням рядка — перевіряємо висоту
+                if y < line_height:
+                    c.showPage()
+                    c.drawImage(bg, 0, 0, width, height)
+                    y = height - margin
+
+                c.drawString(margin, y, line.strip())
+                y -= line_height
                 line = word + " "
+
+    # останній рядок
         if line:
-            lines.append(line)
+            if y < line_height:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                y = height - margin
+            c.drawString(margin, y, line.strip())
+            y -= line_height
 
-        required_height = len(lines) * line_height + 10
-        check_space(required_height)
+        y -= 10  # нижній відступ
 
-    # Малюємо
-        used_height = draw_wrapped_text(
-            c, text,
-            x=margin,
-            y=y,
-            max_width=max_width,
-            line_height=line_height,
-            font_name="DejaVu",
-            font_size=14
-        )
-        y -= used_height + 10
 
     for entry in data["entries"]:
         timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))

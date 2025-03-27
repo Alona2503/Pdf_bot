@@ -311,7 +311,7 @@ def card(update: Update, context: CallbackContext):
     card = random.choice(CARDS)
 
     # ВСТАВКА ТУТ
-    filename = os.path.join(DATA_FOLDER, f"card_{card['number']}.jpg")
+    filename = os.path.join(DATA_FOLDER, os.path.basename(card['image_url']))
     download_image(card["image_url"], filename)
 
     context.user_data["last_card"] = {

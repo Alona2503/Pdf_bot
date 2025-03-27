@@ -519,7 +519,7 @@ def mydairy(update: Update, context: CallbackContext):
                 y=y,
                 max_width=width - 2 * margin,
                 font_size=14,
-                line_height=18
+                line_height=20
             )
 
             lines_count = len(full_text) // 70 + full_text.count("\n")

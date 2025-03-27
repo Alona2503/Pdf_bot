@@ -496,6 +496,11 @@ def mydairy(update: Update, context: CallbackContext):
 
     for entry in data["entries"]:
         if entry["type"] == "note":
+            # перевірити чи є місце перед вставкою нового блоку
+            if y < 150:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                 y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
@@ -539,6 +544,11 @@ def mydairy(update: Update, context: CallbackContext):
                 y -= img_height + 30
 
         elif entry["type"] == "card_response":
+            # перевірити чи є місце перед вставкою нового блоку
+            if y < 150:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24
@@ -577,6 +587,11 @@ def mydairy(update: Update, context: CallbackContext):
                 y -= len(wrapped_lines) * 16 + 6
 
         elif entry["type"] == "morning_answer":
+            # перевірити чи є місце перед вставкою нового блоку
+            if y < 150:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                y = height - margin
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.drawString(margin, y, f"{timestamp}")
             y -= 24

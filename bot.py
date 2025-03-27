@@ -495,7 +495,7 @@ def mydairy(update: Update, context: CallbackContext):
     c.setFont("DejaVu", 16)
 
     for entry in data["entries"]:
-        elif entry["type"] == "note":
+        if entry["type"] == "note":
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"{timestamp}")

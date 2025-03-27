@@ -499,11 +499,11 @@ def mydairy(update: Update, context: CallbackContext):
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"{timestamp}")
-            y -= 20
+            y -= 24
 
-            c.setFont("DejaVu", 16)
+            c.setFont("DejaVu", 14)
             c.drawString(margin, y, "🖋 Нотатка:")
-            y -= 20
+            y -= 24
 
             lines = entry["content"]
             for line in lines:

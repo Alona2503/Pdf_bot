@@ -560,8 +560,8 @@ def mydairy(update: Update, context: CallbackContext):
 
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
             if full_text.strip():
-                lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-                y -= lines_count * 18 + 10
+                wrapped_lines = textwrap.wrap(full_text, width=90)
+                y -= len(wrapped_lines) * 16 + 6
 
         elif entry["type"] == "morning_answer":
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
@@ -578,8 +578,8 @@ def mydairy(update: Update, context: CallbackContext):
                 y = height - margin
 
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-            y -= lines_count * 18 + 10
+            wrapped_lines = textwrap.wrap(full_text, width=90)
+            y -= len(wrapped_lines) * 16 + 6
 
         elif entry["type"] == "evening_answer":
             timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
@@ -598,8 +598,8 @@ def mydairy(update: Update, context: CallbackContext):
                 y = height - margin
 
             draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            lines_count = len(full_text) // 70 + full_text.count("\n") + 1
-            y -= lines_count * 18 + 10
+            wrapped_lines = textwrap.wrap(full_text, width=90)
+            y -= len(wrapped_lines) * 16 + 6
 
     c.save()
 

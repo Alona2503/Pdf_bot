@@ -311,7 +311,7 @@ def card(update: Update, context: CallbackContext):
     card = random.choice(CARDS)
 
     # ВСТАВКА ТУТ
-    filename = os.path.join(DATA_FOLDER, f"card_{user_id}.jpg")
+    filename = card["image_path"]
     download_image(card["image_url"], filename)
 
     context.user_data["last_card"] = {
@@ -322,7 +322,7 @@ def card(update: Update, context: CallbackContext):
 
     context.bot.send_photo(
         chat_id=update.message.chat_id,
-        photo=card["image_url"],
+        photo=open(filename, "rb"),
         caption=f"📍 Карта дня\nНомер: {card['number']}\nНазва: {card['name']}"
     )
     kyiv_time = datetime.now(pytz.timezone("Europe/Kyiv"))

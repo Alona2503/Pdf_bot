@@ -643,7 +643,10 @@ def handle_response(update: Update, context: CallbackContext):
 
     elif state == "morning_response":
         question = context.user_data.get("current_question", "")
-        add_entry(user_id, "morning_answer", f"{question}\n{text}")
+        add_entry(user_id, "morning_answer", {
+            "question": question,
+            "text": text
+        })
         context.user_data["state"] = None
         update.message.reply_text("✅ Ранкова відповідь збережена!")
 

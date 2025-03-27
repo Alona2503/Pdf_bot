@@ -461,8 +461,15 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
         y -= line_height
     return abs(start_y - y) # повертаємо висоту, яку зайняв текст
 def mydairy(update: Update, context: CallbackContext):
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from PIL import Image
+
     user_id = update.message.from_user.id
-    data = load_user_data(user_id)  # Правильне завантаження
+    data = load_user_data(user_id)
     pdf_path = os.path.join(PDF_FOLDER, f"dairy_{user_id}.pdf")
 
     c = canvas.Canvas(pdf_path, pagesize=A4)
@@ -471,9 +478,9 @@ def mydairy(update: Update, context: CallbackContext):
     max_width = width - 2 * margin
 
     pdfmetrics.registerFont(TTFont("DejaVu", FONT_PATH))
-
-    # титульна сторінка
     bg = ImageReader(BACKGROUND_IMAGE)
+
+    # Титульна сторінка
     c.drawImage(bg, 0, 0, width, height)
     c.setFont("DejaVu", 30)
     c.drawCentredString(width / 2, height - 100, data["title"])
@@ -483,75 +490,58 @@ def mydairy(update: Update, context: CallbackContext):
     c.drawCentredString(width / 2, height - 180, f"Дата: {datetime.now().strftime('%Y-%m-%d')}")
     c.showPage()
 
-    # вміст
     y = height - margin
     c.drawImage(bg, 0, 0, width, height)
     c.setFont("DejaVu", 16)
 
-    for entry in data["entries"]:
-        if entry["type"] == "note":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
+    def check_space(required_height):
+        nonlocal y
+        if y < required_height:
+            c.showPage()
+            c.drawImage(bg, 0, 0, width, height)
+            y = height - margin
 
-            c.setFont("DejaVu", 16)
+    def draw_block(title, text):
+        nonlocal y
+        c.setFont("DejaVu", 14)
+        used_height = draw_wrapped_text(
+            c, text,
+            x=margin,
+            y=y,
+            max_width=max_width,
+            line_height=20,
+            font_name="DejaVu",
+            font_size=14
+        )
+        y -= used_height + 10
+
+    for entry in data["entries"]:
+        timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+        check_space(150)
+        c.setFont("DejaVu", 14)
+        c.drawString(margin, y, f"{timestamp}")
+        y -= 24
+
+        if entry["type"] == "note":
+            c.setFont("DejaVu", 14)
             c.drawString(margin, y, "✏️ Нотатка:")
             y -= 24
 
-            lines = entry["content"]
-            full_text = "\n".join(lines) if isinstance(lines, list) else str(lines)
-
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            draw_wrapped_text(
-                c, full_text,
-                x=margin,
-                y=y,
-                max_width=width - 2 * margin,
-                font_size=14,
-                line_height=20
-            )
-
-            lines_count = len(full_text) // 70 + full_text.count("\n")
-            y -= lines_count * 18 + 10
+            full_text = "\n".join(entry["content"]) if isinstance(entry["content"], list) else str(entry["content"])
+            check_space(100)
+            draw_block("", full_text)
 
         elif entry["type"] == "image":
             if os.path.exists(entry["content"]):
-                timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-                c.setFont("DejaVu", 14)
-                c.drawString(margin, y, f"{timestamp}")
-                y -= 24
                 img = Image.open(entry["content"])
                 img.thumbnail((400, 400))
                 img_width, img_height = img.size
-                if y < img_height + 60:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    y = height - margin
+                check_space(img_height + 60)
                 x = (width - img_width) / 2
                 c.drawImage(entry["content"], x, y - img_height, img_width, img_height)
                 y -= img_height + 30
 
         elif entry["type"] == "card_response":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "🔮 Інсайт до карти дня:")
             y -= 24
@@ -560,10 +550,7 @@ def mydairy(update: Update, context: CallbackContext):
                 img = Image.open(entry["content"]["image"])
                 img.thumbnail((400, 400))
                 img_width, img_height = img.size
-                if y < img_height + 60:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    y = height - margin
+                check_space(img_height + 60)
                 x = (width - img_width) / 2
                 c.drawImage(entry["content"]["image"], x, y - img_height, img_width, img_height)
                 y -= img_height + 30
@@ -575,64 +562,28 @@ def mydairy(update: Update, context: CallbackContext):
             y -= 24
 
             full_text = entry["content"].get("text", "")
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= used_height + 10
+            check_space(100)
+            draw_block("", full_text)
 
         elif entry["type"] == "morning_answer":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "☀️ Ранкова відповідь:")
             y -= 24
             question = entry["content"].get("question", "")
             answer = entry["content"].get("text", "")
             full_text = f"{question}\n{answer}"
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= used_height + 10
+            check_space(100)
+            draw_block("", full_text)
 
         elif entry["type"] == "evening_answer":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "🌙 Вечірня рефлексія:")
             y -= 24
             question = entry["content"].get("question", "")
             answer = entry["content"].get("text", "")
             full_text = f"{question}\n{answer}"
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= used_height + 10
+            check_space(100)
+            draw_block("", full_text)
 
     c.save()
 
@@ -643,7 +594,7 @@ def mydairy(update: Update, context: CallbackContext):
         )
     else:
         update.message.reply_text("❌ Сталася помилка при створенні PDF.")
-     
+        
 def handle_response(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     text = update.message.text

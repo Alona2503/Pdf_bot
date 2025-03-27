@@ -495,17 +495,17 @@ def mydairy(update: Update, context: CallbackContext):
     c.setFont("DejaVu", 16)
 
     for entry in data["entries"]:
-            if entry["type"] == "note":
-                timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-                c.drawString(margin, y, f"{timestamp}")
-                y -= 24
+        if entry["type"] == "note":
+            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
+            c.drawString(margin, y, f"{timestamp}")
+            y -= 24
 
-                c.setFont("DejaVu", 16)
-                c.drawString(margin, y, "✏️ Нотатка:")
-                y -= 24
+            c.setFont("DejaVu", 16)
+            c.drawString(margin, y, "✏️ Нотатка:")
+            y -= 24
 
-                lines = entry["content"]
-                full_text = "\n".join(lines) if isinstance(lines, list) else str(lines)
+            lines = entry["content"]
+            full_text = "\n".join(lines) if isinstance(lines, list) else str(lines)
 
             if y < 100:
                 c.showPage()

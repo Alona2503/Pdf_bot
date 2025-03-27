@@ -567,7 +567,7 @@ def mydairy(update: Update, context: CallbackContext):
             card_title = entry.get("card_title", "Без назви")
             card_number = entry.get("card_number", "—")
             draw_block(f"Карта: {card_title} (№{card_number})")
-       elif entry["type"] == "image":
+        elif entry["type"] == "image":
         # Вставка зображення
             image_path = entry["image_path"]
             img_width = 400

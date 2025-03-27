@@ -501,19 +501,38 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawImage(bg, 0, 0, width, height)
             y = height - margin
 
-    def draw_block(title, text):
-        nonlocal y
-        c.setFont("DejaVu", 14)
-        used_height = draw_wrapped_text(
-            c, text,
-            x=margin,
-            y=y,
-            max_width=max_width,
-            line_height=20,
-            font_name="DejaVu",
-            font_size=14
-        )
-        y -= used_height + 10
+    def draw_block(text):
+    nonlocal y
+    c.setFont("DejaVu", 14)
+    line_height = 20
+    # Порахувати кількість рядків заздалегідь
+    words = text.split()
+    lines = []
+    line = ""
+    for word in words:
+        test_line = line + word + " "
+        if c.stringWidth(test_line, "DejaVu", 14) < max_width:
+            line = test_line
+        else:
+            lines.append(line)
+            line = word + " "
+    if line:
+        lines.append(line)
+
+    required_height = len(lines) * line_height + 10
+    check_space(required_height)
+
+    # Малюємо
+    used_height = draw_wrapped_text(
+        c, text,
+        x=margin,
+        y=y,
+        max_width=max_width,
+        line_height=line_height,
+        font_name="DejaVu",
+        font_size=14
+    )
+    y -= used_height + 10
 
     for entry in data["entries"]:
         timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
@@ -529,7 +548,7 @@ def mydairy(update: Update, context: CallbackContext):
 
             full_text = "\n".join(entry["content"]) if isinstance(entry["content"], list) else str(entry["content"])
             check_space(100)
-            draw_block("", full_text)
+            draw_block(full_text)
 
         elif entry["type"] == "image":
             if os.path.exists(entry["content"]):
@@ -563,7 +582,7 @@ def mydairy(update: Update, context: CallbackContext):
 
             full_text = entry["content"].get("text", "")
             check_space(100)
-            draw_block("", full_text)
+            draw_block(full_text)
 
         elif entry["type"] == "morning_answer":
             c.setFont("DejaVu", 14)
@@ -573,7 +592,7 @@ def mydairy(update: Update, context: CallbackContext):
             answer = entry["content"].get("text", "")
             full_text = f"{question}\n{answer}"
             check_space(100)
-            draw_block("", full_text)
+            draw_block(full_text)
 
         elif entry["type"] == "evening_answer":
             c.setFont("DejaVu", 14)
@@ -583,7 +602,7 @@ def mydairy(update: Update, context: CallbackContext):
             answer = entry["content"].get("text", "")
             full_text = f"{question}\n{answer}"
             check_space(100)
-            draw_block("", full_text)
+            draw_block(full_text)
 
     c.save()
 

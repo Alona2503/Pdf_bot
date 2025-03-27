@@ -583,7 +583,9 @@ def mydairy(update: Update, context: CallbackContext):
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, "☀️ Ранкова відповідь:")
             y -= 24
-            full_text = entry["content"]
+            question = entry["content"].get("question", "")
+            answer = entry["content"].get("text", "")
+            full_text = f"{question}\n{answer}"
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)

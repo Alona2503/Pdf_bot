@@ -470,17 +470,39 @@ def load_data(user_id):
             return json.load(f)
     return None   
 def mydairy(update: Update, context: CallbackContext):
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.utils import ImageReader
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from PIL import Image
+
     user_id = update.message.from_user.id
-    pdf_path = f"pdfs/{user_id}_diary.pdf"
-    data = load_data(user_id)
-    entries = data.get("entries", [])
-    username = data.get("username", "Без імені")
-    diary_title = data.get("diary_title", "Мій щоденник")
+    data = load_user_data(user_id)
+    pdf_path = os.path.join(PDF_FOLDER, f"dairy_{user_id}.pdf")
 
     c = canvas.Canvas(pdf_path, pagesize=A4)
     width, height = A4
     margin = 50
+    max_width = width - 2 * margin
+
+    pdfmetrics.registerFont(TTFont("DejaVu", FONT_PATH))
+    bg = ImageReader(BACKGROUND_IMAGE)
+
+    # Титульна сторінка
+    c.drawImage(bg, 0, 0, width, height)
+    c.setFont("DejaVu", 30)
+    c.drawCentredString(width / 2, height - 100, data["title"])
+    c.setFont("DejaVu", 20)
+    c.drawCentredString(width / 2, height - 140, f"Автор: {data['name']}")
+    c.setFont("DejaVu", 16)
+    c.drawCentredString(width / 2, height - 180, f"Дата: {datetime.now().strftime('%Y-%m-%d')}")
+    c.showPage()
+
     y = height - margin
+    c.drawImage(bg, 0, 0, width, height)
+    c.setFont("DejaVu", 16)
+    
 
     def check_space(block_height):
         nonlocal y
@@ -499,17 +521,6 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawString(margin, y, line)
             y -= 18
         y -= 10
-
-    # Титульна сторінка
-    c.setFont("DejaVu", 30)
-    c.drawImage(bg, 0, 0, width=width, height=height)
-    c.drawCentredString(width / 2, height / 2 + 40, diary_title)
-    c.setFont("DejaVu", 20)
-    c.drawCentredString(width / 2, height / 2 - 10, f"Автор: {username}")
-    c.showPage()
-
-    # Нова сторінка з фоном
-    c.drawImage(bg, 0, 0, width=width, height=height)
 
     for entry in entries:
         timestamp = entry.get("timestamp", "")

@@ -460,7 +460,7 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
         canvas.drawString(x, y, line)
         y -= line_height
     return abs(start_y - y) # повертаємо висоту, яку зайняв текст
-def mydiary(update: Update, context: CallbackContext):
+def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_data(user_id)
     entries = data.get("entries", [])

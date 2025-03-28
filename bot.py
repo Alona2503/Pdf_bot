@@ -445,21 +445,30 @@ def cleardairy(update: Update, context: CallbackContext):
     update.message.reply_text("🗑 Щоденник очищено (титульна сторінка збережена).")
 def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="DejaVu", font_size=14):
     canvas.setFont(font_name, font_size)
-    words = text.split()
-    line = ""
-    start_y = y
-    for word in words:
-        test_line = line + word + " "
-        if canvas.stringWidth(test_line, font_name, font_size) < max_width:
-            line = test_line
+    lines = []
+
+    for paragraph in text.split("\n"):
+        wrapped = textwrap.wrap(paragraph, width=100)
+        if not wrapped:
+            lines.append("")  # пустий рядок
         else:
-            canvas.drawString(x, y, line)
-            y -= line_height
-            line = word + " "
-    if line:
-        canvas.drawString(x, y, line)
-        y -= line_height
-    return abs(start_y - y) # повертаємо висоту, яку зайняв текст
+            lines.extend(wrapped)
+
+    page_height = A4[1]
+    margin = 50
+    bg = ImageReader(BACKGROUND_IMAGE)
+    current_y = y
+
+    for line in lines:
+        if current_y - line_height < margin:
+            canvas.showPage()
+            canvas.drawImage(bg, 0, 0, A4[0], A4[1])
+            canvas.setFont(font_name, font_size)
+            current_y = page_height - margin
+        canvas.drawString(x, current_y, line)
+        current_y -= line_height
+
+    return y - current_y  # повертає використану висоту
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)  # Правильне завантаження

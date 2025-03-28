@@ -443,32 +443,38 @@ def cleardairy(update: Update, context: CallbackContext):
     }
     save_user_data(user_id, new_data)
     update.message.reply_text("🗑 Щоденник очищено (титульна сторінка збережена).")
-def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="DejaVu", font_size=14):
-    canvas.setFont(font_name, font_size)
-    lines = []
+def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="DejaVu", font_size=14): canvas.setFont(font_name, font_size) lines = []
 
-    for paragraph in text.split("\n"):
-        wrapped = textwrap.wrap(paragraph, width=100)
-        if not wrapped:
-            lines.append("")  # пустий рядок
+for paragraph in text.split("\n"):
+    words = paragraph.split()
+    current_line = ""
+    for word in words:
+        test_line = current_line + (" " if current_line else "") + word
+        if pdfmetrics.stringWidth(test_line, font_name, font_size) <= max_width:
+            current_line = test_line
         else:
-            lines.extend(wrapped)
+            lines.append(current_line)
+            current_line = word
+    if current_line:
+        lines.append(current_line)
+    lines.append("")  # розділяємо абзаци
 
-    page_height = A4[1]
-    margin = 50
-    bg = ImageReader(BACKGROUND_IMAGE)
-    current_y = y
+page_width, page_height = A4
+margin = 50
+bg = ImageReader(BACKGROUND_IMAGE)
+current_y = y
 
-    for line in lines:
-        if current_y - line_height < margin:
-            canvas.showPage()
-            canvas.drawImage(bg, 0, 0, A4[0], A4[1])
-            canvas.setFont(font_name, font_size)
-            current_y = page_height - margin
-        canvas.drawString(x, current_y, line)
-        current_y -= line_height
+for line in lines:
+    if current_y - line_height < margin:
+        canvas.showPage()
+        canvas.drawImage(bg, 0, 0, page_width, page_height)
+        canvas.setFont(font_name, font_size)
+        current_y = page_height - margin
+    canvas.drawString(x, current_y, line)
+    current_y -= line_height
 
-    return y - current_y  # повертає використану висоту
+return y - current_y  # повертає використану висоту
+
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)  # Правильне завантаження

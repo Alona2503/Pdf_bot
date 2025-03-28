@@ -598,6 +598,12 @@ def mydairy(update: Update, context: CallbackContext):
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
             y -= 24
+            estimated_height = draw_wrapped_text(c, full_text, x=0, y=0, max_width=width - 2 * margin, line_height=20)
+            if y < estimated_height + 24:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
 
             full_text = entry["content"].get("text", "")
             if y < 100:

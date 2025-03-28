@@ -508,168 +508,50 @@ def mydairy(update: Update, context: CallbackContext):
     c.setFont("DejaVu", 16)
 
     for entry in data["entries"]:
-        if entry["type"] == "note":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
+        entry_type = entry.get("type")
+        timestamp = entry.get("timestamp", "")
+        c.setFont("DejaVu", 14)
+        c.drawString(margin, y, f"{timestamp}")
+        y -= 24
+        check_space(24)
 
-            c.setFont("DejaVu", 16)
-            c.drawString(margin, y, "✏️ Нотатка:")
-            y -= 24
+        if entry_type == "morning_answer":
+            question = entry.get("question", "")
+            answer = entry.get("text", "")
+            draw_block(f"☀️ Ранкова відповідь:\n{question}\n\n{answer}")
 
-            lines = entry["content"]
-            full_text = text
-            required_height = estimate_text_height(full_text)
-            y = check_space(c, y, required_height, bg, width, height, margin)
-            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
-            y -= 10
+        elif entry_type == "evening_answer":
+            question = entry.get("question", "")
+            answer = entry.get("text", "")
+            draw_block(f"🌙 Вечірня рефлексія:\n{question}\n\n{answer}")
 
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
+        elif entry_type == "note":
+            lines = entry.get("content", [])
+            text = "\n".join(lines)
+            draw_block(f"📝 Нотатка:\n{text}")
 
-            draw_wrapped_text(
-                c, full_text,
-                x=margin,
-                y=y,
-                max_width=width - 2 * margin,
-                font_size=14,
-                line_height=20
-            )
+        elif entry_type == "card_response":
+            card_name = entry["content"].get("name", "Без назви")
+            card_number = entry["content"].get("number", "-")
+            card_text = entry["content"].get("text", "")
+            card_image = entry["content"].get("image")
 
-            lines_count = len(full_text) // 70 + full_text.count("\n")
-            y -= lines_count * 18 + 10
-
-        elif entry["type"] == "image":
-            if os.path.exists(entry["content"]):
-                timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-                c.setFont("DejaVu", 14)
-                c.drawString(margin, y, f"{timestamp}")
-                y -= 24
-                img = Image.open(entry["content"])
+            draw_block(f"🔮 Карта: {card_name} (№{card_number})")
+            if card_image and os.path.exists(card_image):
+                img = Image.open(card_image)
                 img.thumbnail((400, 400))
                 img_width, img_height = img.size
                 if y < img_height + 60:
                     c.showPage()
                     c.drawImage(bg, 0, 0, width, height)
                     y = height - margin
-                x = (width - img_width) / 2
-                c.drawImage(entry["content"], x, y - img_height, img_width, img_height)
-                y -= img_height + 30
+                c.drawImage(card_image, margin, y - img_height, width=img_width, height=img_height)
+                y -= img_height + 10
+            draw_block(f"✨ Інсайт до карти дня:\n{card_text}")
+            
+                
 
-        elif entry["type"] == "card_response":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "🔮 Інсайт до карти дня:")
-            y -= 24
-
-            if "image" in entry["content"] and os.path.exists(entry["content"]["image"]):
-                img = Image.open(entry["content"]["image"])
-                img.thumbnail((400, 400))
-                img_width, img_height = img.size
-                if y < img_height + 60:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    y = height - margin
-                x = (width - img_width) / 2
-                c.drawImage(entry["content"]["image"], x, y - img_height, img_width, img_height)
-                y -= img_height + 30
-
-            card_name = entry["content"].get("name", "")
-            card_number = entry["content"].get("number", "")
-            text = entry["content"].get("text", "")
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
-            y -= 24
-
-            full_text = f"Карта: {card_name} (№{card_number})\n\nІнсайт:\n{text}"
-            required_height = estimate_text_height(full_text)
-            y = check_space(c, y, required_height, bg, width, height, margin)
-            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
-            y -= 10
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            y = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= 10  # тільки додатковий відступ, якщо хочеш
-
-        elif entry["type"] == "morning_answer":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "☀️ Ранкова відповідь:")
-            y -= 24
-            question = entry["content"].get("question", "")
-            answer = entry["content"].get("text", "")
-            full_text = f"{question}\n\nВідповідь:\n{answer}"
-            required_height = estimate_text_height(full_text)
-            y = check_space(c, y, required_height, bg, width, height, margin)
-            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
-            y -= 10
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            y = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= 10  # тільки додатковий відступ, якщо хочеш
-
-        elif entry["type"] == "evening_answer":
-            # перевірити чи є місце перед вставкою нового блоку
-            if y < 150:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, f"{timestamp}")
-            y -= 24
-            c.setFont("DejaVu", 14)
-            c.drawString(margin, y, "🌙 Вечірня рефлексія:")
-            y -= 24
-            question = entry["content"].get("question", "")
-            answer = entry["content"].get("text", "")
-            full_text = f"{question}\n\nВідповідь:\n{answer}"
-            required_height = estimate_text_height(full_text)
-            y = check_space(c, y, required_height, bg, width, height, margin)
-            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
-            y -= 10
-            if y < 100:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                c.setFont("DejaVu", 14)
-                y = height - margin
-
-            y = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= 10  # тільки додатковий відступ, якщо хочеш
-
+            
     c.save()
 
     if os.path.exists(pdf_path):

@@ -460,6 +460,15 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
         canvas.drawString(x, y, line)
         y -= line_height
     return abs(start_y - y) # повертаємо висоту, яку зайняв текст
+import os
+import json
+
+def load_data(user_id):
+    filename = f"data/{user_id}.json"
+    if os.path.exists(filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return None   
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_data(user_id)

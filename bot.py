@@ -460,81 +460,46 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
         canvas.drawString(x, y, line)
         y -= line_height
     return abs(start_y - y) # повертаємо висоту, яку зайняв текст
-def mydairy(update: Update, context: CallbackContext):
-    from reportlab.lib.pagesizes import A4
-    from reportlab.pdfgen import canvas
-    from reportlab.lib.utils import ImageReader
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from PIL import Image
-
+def mydiary(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
-    data = load_user_data(user_id)
+    data = load_data(user_id)
     entries = data.get("entries", [])
-    pdf_path = os.path.join(PDF_FOLDER, f"dairy_{user_id}.pdf")
+    username = data.get("username", "Без імені")
+    diary_title = data.get("diary_title", "Мій щоденник")
 
     c = canvas.Canvas(pdf_path, pagesize=A4)
     width, height = A4
     margin = 50
-    max_width = width - 2 * margin
-
-    pdfmetrics.registerFont(TTFont("DejaVu", FONT_PATH))
-    bg = ImageReader(BACKGROUND_IMAGE)
-
-    # Титульна сторінка
-    c.drawImage(bg, 0, 0, width, height)
-    c.setFont("DejaVu", 30)
-    c.drawCentredString(width / 2, height - 100, data["title"])
-    c.setFont("DejaVu", 20)
-    c.drawCentredString(width / 2, height - 140, f"Автор: {data['name']}")
-    c.setFont("DejaVu", 16)
-    c.drawCentredString(width / 2, height - 180, f"Дата: {datetime.now().strftime('%Y-%m-%d')}")
-    c.showPage()
-
     y = height - margin
-    c.drawImage(bg, 0, 0, width, height)
-    c.setFont("DejaVu", 16)
 
-    def check_space(required_height):
+    def check_space(block_height):
         nonlocal y
-        if y < required_height:
+        if y - block_height < margin:
             c.showPage()
-            c.drawImage(bg, 0, 0, width, height)
+            c.drawImage(bg, 0, 0, width=width, height=height)
             y = height - margin
 
     def draw_block(text):
         nonlocal y
-        c.setFont("DejaVu", 14)
-        line_height = 20
+        text_lines = text.split('\n')
+        text_height = len(text_lines) * 18 + 10
+        check_space(text_height)
+        c.setFont("DejaVu", 16)
+        for line in text_lines:
+            c.drawString(margin, y, line)
+            y -= 18
+        y -= 10
 
-        words = text.split()
-        line = ""
-        for word in words:
-            test_line = line + word + " "
-            if c.stringWidth(test_line, "DejaVu", 14) < max_width:
-                line = test_line
-            else:
-            # перед малюванням рядка — перевіряємо висоту
-                if y < line_height:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width, height)
-                    y = height - margin
+    # Титульна сторінка
+    c.setFont("DejaVu", 30)
+    c.drawImage(bg, 0, 0, width=width, height=height)
+    c.drawCentredString(width / 2, height / 2 + 40, diary_title)
+    c.setFont("DejaVu", 20)
+    c.drawCentredString(width / 2, height / 2 - 10, f"Автор: {username}")
+    c.showPage()
 
-                c.drawString(margin, y, line.strip())
-                y -= line_height
-                line = word + " "
-
-    # останній рядок
-        if line:
-            if y < line_height:
-                c.showPage()
-                c.drawImage(bg, 0, 0, width, height)
-                y = height - margin
-            c.drawString(margin, y, line.strip())
-            y -= line_height
-
-        y -= 10  # нижній відступ
-
+    # Нова сторінка з фоном
+    c.drawImage(bg, 0, 0, width=width, height=height)
 
     for entry in entries:
         timestamp = entry.get("timestamp", "")
@@ -544,8 +509,6 @@ def mydairy(update: Update, context: CallbackContext):
         check_space(24)
 
         content = entry.get("content", [])
-
-    # Якщо контент — список (новий формат)
         if isinstance(content, list):
             for item in content:
                 if not isinstance(item, dict):
@@ -572,42 +535,11 @@ def mydairy(update: Update, context: CallbackContext):
                         img_height = 300
                         if y < img_height:
                             c.showPage()
-                            c.drawImage(bg, 0, 0, width, height)
+                            c.drawImage(bg, 0, 0, width=width, height=height)
                             y = height - margin
                         c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
                         y -= img_height + 10
                         check_space(img_height + 10)
-
-    # Якщо контент — звичайний текстовий блок (старий формат)
-        elif isinstance(content, dict):
-            entry_type = content.get("type")
-            text = content.get("text", "(порожньо)")
-
-            if entry_type == "morning_answer":
-                draw_block("☀️ Ранкова відповідь:\n" + text)
-            elif entry_type == "evening_reflection":
-                draw_block("🌙 Вечірня рефлексія:\n" + text)
-            elif entry_type == "note":
-                draw_block("📝 Нотатка:\n" + text)
-            elif entry_type == "insight":
-                draw_block("✨ Інсайт до карти дня:\n" + text)
-            elif entry_type == "card":
-                title = content.get("card_title", "Без назви")
-                number = content.get("card_number", "-")
-                draw_block(f"Карта: {title} (№{number})")
-            elif entry_type == "image":
-                image_path = content.get("image_path")
-                if image_path:
-                    img_width = 400
-                    img_height = 300
-                    if y < img_height:
-                        c.showPage()
-                        c.drawImage(bg, 0, 0, width, height)
-                        y = height - margin
-                    c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-                    y -= img_height + 10
-                    check_space(img_height + 10)
-
 
     c.save()
 
@@ -618,7 +550,14 @@ def mydairy(update: Update, context: CallbackContext):
         )
     else:
         update.message.reply_text("❌ Сталася помилка при створенні PDF.")
-        
+    
+
+
+
+
+
+
+    
 def handle_response(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     text = update.message.text

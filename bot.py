@@ -476,6 +476,7 @@ def mydairy(update: Update, context: CallbackContext):
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
     from PIL import Image
+    from datetime import datetime
 
     user_id = update.message.from_user.id
     data = load_user_data(user_id)
@@ -490,6 +491,24 @@ def mydairy(update: Update, context: CallbackContext):
     pdfmetrics.registerFont(TTFont("DejaVu", FONT_PATH))
     bg = ImageReader(BACKGROUND_IMAGE)
 
+    def check_space(required_height):
+        nonlocal y
+        if y - required_height < margin:
+            c.showPage()
+            c.drawImage(bg, 0, 0, width=width, height=height)
+            y = height - margin
+
+    def draw_block(text, font_size=16):
+        nonlocal y
+        c.setFont("DejaVu", font_size)
+        lines = text.split('\n')
+        block_height = len(lines) * (font_size + 4) + 10
+        check_space(block_height)
+        for line in lines:
+            c.drawString(margin, y, line)
+            y -= font_size + 4
+        y -= 10
+
     # Титульна сторінка
     c.drawImage(bg, 0, 0, width, height)
     c.setFont("DejaVu", 30)
@@ -502,66 +521,66 @@ def mydairy(update: Update, context: CallbackContext):
 
     y = height - margin
     c.drawImage(bg, 0, 0, width, height)
-    c.setFont("DejaVu", 16)
-    
-
-    def check_space(block_height):
-        nonlocal y
-        if y - block_height < margin:
-            c.showPage()
-            c.drawImage(bg, 0, 0, width=width, height=height)
-            y = height - margin
-
-    def draw_block(text):
-        nonlocal y
-        text_lines = text.split('\n')
-        text_height = len(text_lines) * 18 + 10
-        check_space(text_height)
-        c.setFont("DejaVu", 16)
-        for line in text_lines:
-            c.drawString(margin, y, line)
-            y -= 18
-        y -= 10
 
     for entry in entries:
         timestamp = entry.get("timestamp", "")
+        dt = datetime.fromisoformat(timestamp)
+        date_str = format_datetime_ukr(dt)
+
+        check_space(30)
         c.setFont("DejaVu", 14)
-        c.drawString(margin, y, f"{timestamp}")
+        c.drawString(margin, y, f"{date_str}")
         y -= 24
-        check_space(24)
 
-        content = entry.get("content", [])
-        if isinstance(content, list):
-            for item in content:
-                if not isinstance(item, dict):
-                    continue
-                entry_type = item.get("type")
-                text = item.get("text", "(порожньо)")
+        etype = entry.get("type")
+        content = entry.get("content", "")
 
-                if entry_type == "morning_answer":
-                    draw_block("☀️ Ранкова відповідь:\n" + text)
-                elif entry_type == "evening_reflection":
-                    draw_block("🌙 Вечірня рефлексія:\n" + text)
-                elif entry_type == "note":
-                    draw_block("📝 Нотатка:\n" + text)
-                elif entry_type == "insight":
-                    draw_block("✨ Інсайт до карти дня:\n" + text)
-                elif entry_type == "card":
-                    title = item.get("card_title", "Без назви")
-                    number = item.get("card_number", "-")
-                    draw_block(f"Карта: {title} (№{number})")
-                elif entry_type == "image":
-                    image_path = item.get("image_path")
-                    if image_path:
-                        img_width = 400
-                        img_height = 300
-                        if y < img_height:
-                            c.showPage()
-                            c.drawImage(bg, 0, 0, width=width, height=height)
-                            y = height - margin
-                        c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-                        y -= img_height + 10
-                        check_space(img_height + 10)
+        if etype == "morning_answer":
+            q = content.get("question", "")
+            text = content.get("text", "")
+            draw_block(f"☀️ Ранкове запитання:\n{q}\n\nВідповідь:\n{text}")
+
+        elif etype == "evening_answer":
+            q = content.get("question", "")
+            text = content.get("text", "")
+            draw_block(f"🌙 Вечірнє запитання:\n{q}\n\nВідповідь:\n{text}")
+
+        elif etype == "note":
+            if isinstance(content, list):
+                for note in content:
+                    text = note.get("text", "")
+                    draw_block(f"📝 Нотатка:\n{text}")
+            elif isinstance(content, str):
+                draw_block(f"📝 Нотатка:\n{content}")
+
+        elif etype == "card_response":
+            number = content.get("number", "-")
+            name = content.get("name", "Карта без назви")
+            text = content.get("text", "")
+            image_path = content.get("image", "")
+            draw_block(f"🔮 Карта дня:\nНазва: {name}\nНомер: {number}\n\nІнсайти:\n{text}")
+
+            if os.path.exists(image_path):
+                img_width = 400
+                img_height = 300
+                if y < img_height + margin:
+                    c.showPage()
+                    c.drawImage(bg, 0, 0, width=width, height=height)
+                    y = height - margin
+                c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                y -= img_height + 20
+
+        elif etype == "image":
+            image_path = content
+            if os.path.exists(image_path):
+                img_width = 400
+                img_height = 300
+                if y < img_height + margin:
+                    c.showPage()
+                    c.drawImage(bg, 0, 0, width=width, height=height)
+                    y = height - margin
+                c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                y -= img_height + 20
 
     c.save()
 
@@ -572,12 +591,6 @@ def mydairy(update: Update, context: CallbackContext):
         )
     else:
         update.message.reply_text("❌ Сталася помилка при створенні PDF.")
-    
-
-
-
-
-
 
     
 def handle_response(update: Update, context: CallbackContext):

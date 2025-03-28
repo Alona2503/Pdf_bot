@@ -475,7 +475,6 @@ def mydairy(update: Update, context: CallbackContext):
     from reportlab.lib.utils import ImageReader
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    from PIL import Image
     from datetime import datetime
 
     user_id = update.message.from_user.id
@@ -486,6 +485,7 @@ def mydairy(update: Update, context: CallbackContext):
     c = canvas.Canvas(pdf_path, pagesize=A4)
     width, height = A4
     margin = 50
+    line_height = 18
     max_width = width - 2 * margin
 
     pdfmetrics.registerFont(TTFont("DejaVu", FONT_PATH))
@@ -498,89 +498,100 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawImage(bg, 0, 0, width=width, height=height)
             y = height - margin
 
-    def draw_block(text, font_size=16):
+    def draw_wrapped_block(title, text, font_size=14):
         nonlocal y
         c.setFont("DejaVu", font_size)
-        lines = text.split('\n')
-        block_height = len(lines) * (font_size + 4) + 10
+        lines = []
+        if title:
+            lines.append(title)
+        for paragraph in text.split("\n"):
+            wrapped = textwrap.wrap(paragraph, width=90)
+            lines.extend(wrapped)
+            lines.append("")  # порожній рядок після абзацу
+
+        block_height = len(lines) * (font_size + 2)
         check_space(block_height)
         for line in lines:
             c.drawString(margin, y, line)
-            y -= font_size + 4
-        y -= 10
+            y -= font_size + 2
+        y -= 6
 
-    # Титульна сторінка
+    # --- титульна сторінка ---
     c.drawImage(bg, 0, 0, width, height)
     c.setFont("DejaVu", 30)
     c.drawCentredString(width / 2, height - 100, data["title"])
     c.setFont("DejaVu", 20)
     c.drawCentredString(width / 2, height - 140, f"Автор: {data['name']}")
     c.setFont("DejaVu", 16)
-    c.drawCentredString(width / 2, height - 180, f"Дата: {datetime.now().strftime('%Y-%m-%d')}")
+    c.drawCentredString(width / 2, height - 180, f"Дата створення: {datetime.now().strftime('%Y-%m-%d')}")
     c.showPage()
 
     y = height - margin
-    c.drawImage(bg, 0, 0, width, height)
+    c.drawImage(bg, 0, 0, width=width, height=height)
 
+    # --- групування записів по даті ---
+    from collections import defaultdict
+    grouped = defaultdict(list)
     for entry in entries:
-        timestamp = entry.get("timestamp", "")
-        dt = datetime.fromisoformat(timestamp)
-        date_str = format_datetime_ukr(dt)
+        date_key = entry["timestamp"][:10]  # YYYY-MM-DD
+        grouped[date_key].append(entry)
 
+    for date_str in sorted(grouped.keys()):
+        ukr_date = format_datetime_ukr(datetime.fromisoformat(date_str + "T00:00:00"))
         check_space(30)
-        c.setFont("DejaVu", 14)
-        c.drawString(margin, y, f"{date_str}")
-        y -= 24
+        c.setFont("DejaVu", 16)
+        c.drawString(margin, y, f"Дата: {ukr_date}")
+        y -= 26
 
-        etype = entry.get("type")
-        content = entry.get("content", "")
+        for entry in grouped[date_str]:
+            etype = entry.get("type")
+            content = entry.get("content")
 
-        if etype == "morning_answer":
-            q = content.get("question", "")
-            text = content.get("text", "")
-            draw_block(f"☀️ Ранкове запитання:\n{q}\n\nВідповідь:\n{text}")
+            if etype == "morning_answer":
+                q = content.get("question", "")
+                a = content.get("text", "")
+                draw_wrapped_block("Ранкове запитання:", q + "\n\nВідповідь:\n" + a)
 
-        elif etype == "evening_answer":
-            q = content.get("question", "")
-            text = content.get("text", "")
-            draw_block(f"🌙 Вечірнє запитання:\n{q}\n\nВідповідь:\n{text}")
+            elif etype == "evening_answer":
+                q = content.get("question", "")
+                a = content.get("text", "")
+                draw_wrapped_block("Вечірнє запитання:", q + "\n\nВідповідь:\n" + a)
 
-        elif etype == "note":
-            if isinstance(content, list):
-                for note in content:
-                    text = note.get("text", "")
-                    draw_block(f"📝 Нотатка:\n{text}")
-            elif isinstance(content, str):
-                draw_block(f"📝 Нотатка:\n{content}")
+            elif etype == "note":
+                if isinstance(content, list):
+                    for note in content:
+                        draw_wrapped_block("Нотатка:", note.get("text", ""))
+                elif isinstance(content, str):
+                    draw_wrapped_block("Нотатка:", content)
 
-        elif etype == "card_response":
-            number = content.get("number", "-")
-            name = content.get("name", "Карта без назви")
-            text = content.get("text", "")
-            image_path = content.get("image", "")
-            draw_block(f"🔮 Карта дня:\nНазва: {name}\nНомер: {number}\n\nІнсайти:\n{text}")
+            elif etype == "card_response":
+                title = content.get("name", "Карта без назви")
+                number = content.get("number", "-")
+                text = content.get("text", "")
+                draw_wrapped_block(f"Карта дня: {title} (№{number})", text)
 
-            if os.path.exists(image_path):
-                img_width = 400
-                img_height = 300
-                if y < img_height + margin:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width=width, height=height)
-                    y = height - margin
-                c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-                y -= img_height + 20
+                image_path = content.get("image")
+                if image_path and os.path.exists(image_path):
+                    img_width = 400
+                    img_height = 300
+                    if y < img_height + margin:
+                        c.showPage()
+                        c.drawImage(bg, 0, 0, width=width, height=height)
+                        y = height - margin
+                    c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                    y -= img_height + 20
 
-        elif etype == "image":
-            image_path = content
-            if os.path.exists(image_path):
-                img_width = 400
-                img_height = 300
-                if y < img_height + margin:
-                    c.showPage()
-                    c.drawImage(bg, 0, 0, width=width, height=height)
-                    y = height - margin
-                c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
-                y -= img_height + 20
+            elif etype == "image":
+                image_path = content
+                if os.path.exists(image_path):
+                    img_width = 400
+                    img_height = 300
+                    if y < img_height + margin:
+                        c.showPage()
+                        c.drawImage(bg, 0, 0, width=width, height=height)
+                        y = height - margin
+                    c.drawImage(image_path, margin, y - img_height, width=img_width, height=img_height)
+                    y -= img_height + 20
 
     c.save()
 
@@ -591,6 +602,8 @@ def mydairy(update: Update, context: CallbackContext):
         )
     else:
         update.message.reply_text("❌ Сталася помилка при створенні PDF.")
+
+    
 
     
 def handle_response(update: Update, context: CallbackContext):

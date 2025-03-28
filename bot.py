@@ -447,19 +447,18 @@ def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="Dej
     canvas.setFont(font_name, font_size)
     words = text.split()
     line = ""
-    start_y = y
     for word in words:
         test_line = line + word + " "
         if canvas.stringWidth(test_line, font_name, font_size) < max_width:
             line = test_line
         else:
-            canvas.drawString(x, y, line)
+            canvas.drawString(x, y, line.strip())
             y -= line_height
             line = word + " "
     if line:
-        canvas.drawString(x, y, line)
+        canvas.drawString(x, y, line.strip())
         y -= line_height
-    return abs(start_y - y) # повертаємо висоту, яку зайняв текст
+    return y  # повертаємо нову координату
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     data = load_user_data(user_id)  # Правильне завантаження
@@ -581,8 +580,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= used_height + 10
+            y = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            y -= 10  # тільки додатковий відступ, якщо хочеш
 
         elif entry["type"] == "morning_answer":
             # перевірити чи є місце перед вставкою нового блоку
@@ -606,8 +605,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= used_height + 10
+            y = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            y -= 10  # тільки додатковий відступ, якщо хочеш
 
         elif entry["type"] == "evening_answer":
             # перевірити чи є місце перед вставкою нового блоку
@@ -631,8 +630,8 @@ def mydairy(update: Update, context: CallbackContext):
                 c.setFont("DejaVu", 14)
                 y = height - margin
 
-            used_height = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
-            y -= used_height + 10
+            y = draw_wrapped_text(c, full_text, x=margin, y=y, max_width=500, line_height=20)
+            y -= 10  # тільки додатковий відступ, якщо хочеш
 
     c.save()
 

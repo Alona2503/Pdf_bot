@@ -551,10 +551,12 @@ def mydairy(update: Update, context: CallbackContext):
                 img = Image.open(entry["content"])
                 img.thumbnail((400, 400))
                 img_width, img_height = img.size
-                if y < img_height + 60:
+                if y < img_height + 60 + 24:
                     c.showPage()
                     c.drawImage(bg, 0, 0, width, height)
-                    y = height - margin
+                    c.setFont("DejaVu", 14)
+                    c.drawString(margin, height - margin, f"{timestamp}")
+                    y = height - margin - 24
                 x = (width - img_width) / 2
                 c.drawImage(entry["content"], x, y - img_height, img_width, img_height)
                 y -= img_height + 30

@@ -545,8 +545,7 @@ def mydairy(update: Update, context: CallbackContext):
         elif entry["type"] == "image":
             if os.path.exists(entry["content"]):
                 timestamp = format_datetime_ukr(datetime.fromisoformat(entry["timestamp"]))
-                c.setFont("DejaVu", 14)
-                c.drawString(margin, y, f"{timestamp}")
+                y = height - margin
                 y -= 24
                 img = Image.open(entry["content"])
                 img.thumbnail((400, 400))

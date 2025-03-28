@@ -597,7 +597,7 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
             y -= 24
 
-            full_text = f"Карта: {title} (№{number})\n\nІнсайт:\n{text}"
+            full_text = f"Карта: {card_name} (№{card_number})\n\nІнсайт:\n{text}"
             required_height = estimate_text_height(full_text)
             y = check_space(c, y, required_height, bg, width, height, margin)
             y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)

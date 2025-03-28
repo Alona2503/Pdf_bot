@@ -631,6 +631,12 @@ def mydairy(update: Update, context: CallbackContext):
             question = entry["content"].get("question", "")
             answer = entry["content"].get("text", "")
             full_text = f"{question}\n{answer}"
+            estimated_height = draw_wrapped_text(c, full_text, x=0, y=0, max_width=width - 2 * margin, line_height=20)
+            if y < estimated_height + 24 + 24:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)
@@ -656,6 +662,12 @@ def mydairy(update: Update, context: CallbackContext):
             question = entry["content"].get("question", "")
             answer = entry["content"].get("text", "")
             full_text = f"{question}\n{answer}"
+            estimated_height = draw_wrapped_text(c, full_text, x=0, y=0, max_width=width - 2 * margin, line_height=20)
+            if y < estimated_height + 24 + 24:
+                c.showPage()
+                c.drawImage(bg, 0, 0, width, height)
+                c.setFont("DejaVu", 14)
+                y = height - margin
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)

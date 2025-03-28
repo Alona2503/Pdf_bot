@@ -471,6 +471,7 @@ def load_data(user_id):
     return None   
 def mydairy(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
+    pdf_path = f"pdfs/{user_id}_diary.pdf"
     data = load_data(user_id)
     entries = data.get("entries", [])
     username = data.get("username", "Без імені")

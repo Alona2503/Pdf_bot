@@ -443,6 +443,26 @@ def cleardairy(update: Update, context: CallbackContext):
     }
     save_user_data(user_id, new_data)
     update.message.reply_text("🗑 Щоденник очищено (титульна сторінка збережена).")
+def check_space(canvas, y, required_height, bg, width, height, margin):
+    if y - required_height < margin:
+        canvas.showPage()
+        canvas.drawImage(bg, 0, 0, width=width, height=height)
+        return height - margin  # новий y після переходу
+    return y  # залишає поточний y 
+import textwrap
+
+def estimate_text_height(text, max_width_chars=90, font_size=14, line_spacing=2):
+    """
+    Оцінює висоту тексту в пікселях для перевірки, чи вміститься він на сторінці.
+    Параметр max_width_chars — це скільки символів у рядок при поточному шрифті.
+    """
+    paragraphs = text.split("\n")
+    total_lines = 0
+    for paragraph in paragraphs:
+        wrapped = textwrap.wrap(paragraph, width=max_width_chars)
+        total_lines += len(wrapped) + 1  # +1 — це відступ між абзацами
+    line_height = font_size + line_spacing
+    return total_lines * line_height
 def draw_wrapped_text(canvas, text, x, y, max_width, line_height, font_name="DejaVu", font_size=14):
     canvas.setFont(font_name, font_size)
     words = text.split()
@@ -504,7 +524,11 @@ def mydairy(update: Update, context: CallbackContext):
             y -= 24
 
             lines = entry["content"]
-            full_text = "\n".join(lines) if isinstance(lines, list) else str(lines)
+            full_text = text
+            required_height = estimate_text_height(full_text)
+            y = check_space(c, y, required_height, bg, width, height, margin)
+            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
+            y -= 10
 
             if y < 100:
                 c.showPage()
@@ -573,7 +597,11 @@ def mydairy(update: Update, context: CallbackContext):
             c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
             y -= 24
 
-            full_text = entry["content"].get("text", "")
+            full_text = f"Карта: {title} (№{number})\n\nІнсайт:\n{text}"
+            required_height = estimate_text_height(full_text)
+            y = check_space(c, y, required_height, bg, width, height, margin)
+            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
+            y -= 10
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)
@@ -598,7 +626,11 @@ def mydairy(update: Update, context: CallbackContext):
             y -= 24
             question = entry["content"].get("question", "")
             answer = entry["content"].get("text", "")
-            full_text = f"{question}\n{answer}"
+            full_text = f"{question}\n\nВідповідь:\n{answer}"
+            required_height = estimate_text_height(full_text)
+            y = check_space(c, y, required_height, bg, width, height, margin)
+            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
+            y -= 10
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)
@@ -623,7 +655,11 @@ def mydairy(update: Update, context: CallbackContext):
             y -= 24
             question = entry["content"].get("question", "")
             answer = entry["content"].get("text", "")
-            full_text = f"{question}\n{answer}"
+            full_text = f"{question}\n\nВідповідь:\n{answer}"
+            required_height = estimate_text_height(full_text)
+            y = check_space(c, y, required_height, bg, width, height, margin)
+            y = draw_wrapped_text(c, full_text, margin, y, max_width=500, line_height=20)
+            y -= 10
             if y < 100:
                 c.showPage()
                 c.drawImage(bg, 0, 0, width, height)

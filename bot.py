@@ -593,6 +593,7 @@ def mydairy(update: Update, context: CallbackContext):
 
             card_name = entry["content"].get("name", "")
             card_number = entry["content"].get("number", "")
+            text = entry["content"].get("text", "")
             c.setFont("DejaVu", 14)
             c.drawString(margin, y, f"Карта: {card_name} (№{card_number})")
             y -= 24
